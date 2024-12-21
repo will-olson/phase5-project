@@ -1,7 +1,362 @@
 :root {
-  --bg: #282c34;
-  --header: #fff;
-  --link: #61dafb;
-  --text: hsla(0, 0%, 100%, 0.88);
+  --font-family-sans: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Fira Sans", Ubuntu, "Oxygen Sans", Cantarell, "Droid Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Lucida Grande", Helvetica, Arial, sans-serif;
+  --header-font-size: 2.4rem;
+  --description-font-size: 1.4rem;
+  --font-weight-normal: 400;
+  --font-weight-bold: 600;
+
+  --color-text: rgba(0, 0, 0, 0.9);
+  --color-link: #0a66c2;
+  --color-link-hover: #004182;
+  --color-background: #f8fafd;
+  --content-background: #ffffff;
+  --content-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --navbar-background: #ffffff;
+  --navbar-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  --dark-color-text: rgba(255, 255, 255, 0.9);
+  --dark-color-link: #76c7f6;
+  --dark-color-link-hover: #4a99c2;
+  --dark-color-background: #121212;
+  --dark-content-background: #1e1e1e;
+  --dark-content-box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+  --dark-navbar-background: #1e1e1e;
+  --dark-navbar-box-shadow: 0 1px 3px rgba(255, 255, 255, 0.1);
+
+  --content-padding: 1.6rem;
+  --content-border-radius: 0.8rem; 
+  --tile-min-width: 200px;
 }
 
+body {
+  font-family: var(--font-family-sans);
+  font-size: var(--description-font-size);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  margin: 0;
+  padding: 0;
+  text-align: center; 
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-mode {
+  color: var(--dark-color-text);
+  background-color: var(--dark-color-background);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--navbar-background);
+  padding: var(--content-padding);
+  box-shadow: var(--navbar-box-shadow);
+  margin-bottom: 2rem;
+  border-radius: var(--content-border-radius); 
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .navbar {
+  background-color: var(--dark-navbar-background);
+  box-shadow: var(--dark-navbar-box-shadow);
+}
+
+.navbar a {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+  padding: 0.5rem 1rem;
+  border-radius: var(--content-border-radius); 
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar a:hover {
+  background-color: var(--color-link-hover);
+  color: #ffffff;
+}
+
+body.dark-mode .navbar a {
+  color: var(--dark-color-link);
+}
+
+body.dark-mode .navbar a:hover {
+  background-color: var(--dark-color-link-hover);
+  color: #ffffff;
+}
+
+.header {
+  text-align: center;
+  padding: 1rem;
+  background-color: var(--content-background);
+  box-shadow: var(--content-box-shadow);
+  margin-bottom: 2rem;
+  border-radius: var(--content-border-radius); 
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .header {
+  background-color: var(--dark-content-background);
+  box-shadow: var(--dark-content-box-shadow);
+}
+
+h2.section-title {
+  font-size: var(--header-font-size);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 1rem;
+}
+
+.content-square {
+  background-color: var(--content-background);
+  padding: var(--content-padding);
+  border-radius: var(--content-border-radius); 
+  box-shadow: var(--content-box-shadow);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.dark-mode .content-square {
+  background-color: var(--dark-content-background);
+  box-shadow: var(--dark-content-box-shadow);
+}
+
+.container {
+  padding: 2rem;
+  text-align: center;
+}
+
+.company-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.5rem;
+  margin: 0 auto;
+}
+
+.company-tile {
+  min-width: var(--tile-min-width);
+  flex: 1 1 calc(33.333% - 1.5rem);
+  background-color: var(--content-background);
+  padding: 1rem;
+  border-radius: var(--content-border-radius); 
+  box-shadow: var(--content-box-shadow);
+  margin: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease;
+}
+
+.company-tile.fade-out {
+  opacity: 0;
+}
+
+button {
+  font-family: var(--font-family-sans);
+  font-size: var(--description-font-size);
+  font-weight: var(--font-weight-normal);
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--content-border-radius);
+  background-color: var(--color-link);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--color-link-hover);
+}
+
+body.dark-mode button {
+  background-color: var(--dark-color-link);
+}
+
+body.dark-mode button:hover {
+  background-color: var(--dark-color-link-hover);
+}
+
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid var(--color-link);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+.error-message {
+  color: red;
+  font-size: 1.2rem;
+  margin: 1rem;
+  text-align: center;
+  background-color: #fdd;
+  padding: 1rem;
+  border-radius: 0.8rem;
+}
+
+.company-card {
+  min-width: var(--tile-min-width);
+  flex: 1 1 auto;
+  background-color: var(--content-background);
+  padding: 1rem;
+  border-radius: var(--content-border-radius); 
+  box-shadow: var(--content-box-shadow);
+  margin: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.company-card:hover {
+  transform: scale(1.05);
+}
+
+
+body.dark-mode .company-card {
+  background-color: var(--dark-content-background);
+  color: var(--dark-color-text);
+  box-shadow: var(--dark-content-box-shadow);
+}
+
+
+.company-links .company-link, .company-links .indeed-link {
+  color: var(--color-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+  padding: 0.5rem 1rem;
+  border-radius: var(--content-border-radius);
+  border: 1px solid var(--color-link);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+}
+
+.company-links .company-link:hover, .company-links .indeed-link:hover {
+  background-color: var(--color-link);
+  color: #ffffff;
+}
+
+body.dark-mode .company-links .company-link, body.dark-mode .company-links .indeed-link {
+  color: var(--dark-color-link);
+}
+
+body.dark-mode .company-links .company-link:hover, body.dark-mode .company-links .indeed-link:hover {
+  background-color: var(--dark-color-link);
+  color: #ffffff;
+}
+
+
+.favorite-button {
+  font-size: 1.5rem;
+  padding: 0.4rem 0.8rem;
+  margin: 0.5rem 0;
+  width: auto;
+  max-width: 50px;
+  height: auto;
+  background-color: var(--color-link);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--content-border-radius);
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.favorite-button:hover {
+  background-color: var(--color-link-hover);
+}
+
+.industry-news-container {
+  display: flex;
+  flex-direction: row;
+  padding: 1rem;
+}
+
+.categories-sidebar {
+  width: 20%;
+  padding-right: 1rem;
+  border-right: 1px solid #ddd;
+}
+
+.categories-sidebar h2 {
+  margin-bottom: 1rem;
+}
+
+.categories-list {
+  list-style: none;
+  padding: 0;
+}
+
+.category-item {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 5px;
+  margin-bottom: 0.5rem;
+}
+
+.category-item:hover {
+  background-color: #f0f0f0;
+}
+
+.category-item.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+.news-content {
+  width: 80%;
+  padding-left: 1rem;
+}
+
+.company-section {
+  margin-bottom: 2rem;
+}
+
+.company-section h3 {
+  margin-bottom: 0.5rem;
+}
+
+.company-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.company-section ul li {
+  margin-bottom: 0.5rem;
+}
+
+.company-section ul li a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.company-section ul li a:hover {
+  text-decoration: underline;
+}
+
+
+body.dark-mode .favorite-button {
+  background-color: var(--dark-color-link);
+}
+
+body.dark-mode .favorite-button:hover {
+  background-color: var(--dark-color-link-hover);
+}

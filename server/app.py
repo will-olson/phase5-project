@@ -1,23 +1,222 @@
 #!/usr/bin/env python3
 
-# Standard library imports
+import time
 
-# Remote library imports
-from flask import request
-from flask_restful import Resource
-
-# Local imports
-from config import app, db, api
-# Add your model imports
+from flask import Flask, request, jsonify, session
+from config import db, api, migrate, CORS
+from models import Company, Category, User, Favorites
+import bcrypt
+import requests
 
 
-# Views go here!
+NEWS_API_KEY = "01376e4cfa834ceabaeac2a7025c77a5"
+news_cache = {}
+CACHE_TTL = 86400
+
+
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'mysecretkey'
+
+db.init_app(app)
+migrate.init_app(app, db)
+api.init_app(app)
+CORS(app, supports_credentials=True, origins="http://localhost:3000")
+
+
+def fetch_news_for_company(company_name, desired_article_count=5):
+    current_time = time.time()
+    if company_name in news_cache:
+        cached_data, timestamp = news_cache[company_name]
+        if current_time - timestamp < CACHE_TTL:
+            return [article for article in cached_data if article['title'] != '[Removed]'][:desired_article_count]
+
+    response = requests.get("https://newsapi.org/v2/everything", params={
+        "q": company_name,
+        "apiKey": NEWS_API_KEY,
+        "language": "en",
+        "sortBy": "relevancy",
+        "pageSize": 10
+    })
+
+    if response.status_code == 200:
+        articles = response.json().get('articles', [])
+        news_cache[company_name] = (articles, current_time)
+        return [article for article in articles if article['title'] != '[Removed]'][:desired_article_count]
+    else:
+        return []
+
+
+def create_app():
+    return app
 
 @app.route('/')
 def index():
     return '<h1>Project Server</h1>'
 
+@app.route('/users', methods=['GET', 'POST'])
+def users():
+    if request.method == 'GET':
+        users = User.query.all()
+        return jsonify([{"id": user.id, "name": user.name} for user in users])
+    
+    if request.method == 'POST':
+        data = request.get_json()
+        name = data.get('name')
+        password = data.get('password')
+        
+        existing_user = User.query.filter_by(name=name).first()
+        if existing_user:
+            return jsonify({"message": "User already exists"}), 400
+
+        new_user = User(name=name, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+        return jsonify({"id": new_user.id, "name": new_user.name}), 201
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    name = data.get('name')
+    password = data.get('password')
+
+    user = User.query.filter_by(name=name).first()
+    if not user or not user.check_password(password):
+        return jsonify({"message": "Invalid credentials"}), 401
+
+    return jsonify({"message": "Login successful!"}), 200
+    
+
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    return jsonify({"message": "Logged out successfully!"}), 200
+
+@app.route('/companies', methods=['GET', 'POST'])
+def companies():
+    if request.method == 'GET':
+        companies = Company.query.all()
+        return jsonify([
+            {
+                "name": company.name,
+                "category": company.category.name if company.category else None,
+                "link": company.link,
+                "indeed": company.indeed
+            } for company in companies
+        ])
+    
+    if request.method == 'POST':
+        data = request.get_json()
+        name = data.get('name')
+        link = data.get('link')
+        indeed = data.get('indeed')
+        category_name = data.get('category_name')
+        
+        category = Category.query.filter_by(name=category_name).first()
+        if not category:
+            return jsonify({"error": "Category not found"}), 400
+        
+        new_company = Company(name=name, link=link, indeed=indeed, category=category)
+        db.session.add(new_company)
+        db.session.commit()
+        return jsonify({"message": f"Company '{name}' added successfully."}), 201
+
+@app.route('/favorites', methods=['GET', 'POST', 'DELETE'])
+def manage_favorites():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({"message": "User ID is required"}), 400
+
+    if request.method == 'GET':
+        favorites = Favorites.query.filter_by(user_id=user_id).all()
+        return jsonify([{
+            "company_id": favorite.company_id,
+            "company_name": favorite.company.name,
+            "link": favorite.company.link
+        } for favorite in favorites])
+
+    elif request.method == 'POST':
+        data = request.get_json()
+        company_id = data.get('company_id')
+        company = Company.query.get(company_id)
+        if company:
+            new_favorite = Favorites(user_id=user_id, company_id=company_id)
+            db.session.add(new_favorite)
+            db.session.commit()
+            return jsonify({"message": f"Company {company.name} added to favorites."}), 201
+        return jsonify({"message": "Company not found."}), 404
+
+    elif request.method == 'DELETE':
+        data = request.get_json()
+        company_id = data.get('company_id')
+        favorite = Favorites.query.filter_by(user_id=user_id, company_id=company_id).first()
+        if favorite:
+            db.session.delete(favorite)
+            db.session.commit()
+            return jsonify({"message": f"Company {favorite.company.name} removed from favorites."}), 200
+        return jsonify({"message": "Favorite not found."}), 404
+
+
+@app.route('/categories', methods=['GET'])
+def get_categories():
+    categories = Category.query.all()
+    return jsonify([{"name": category.name} for category in categories])
+
+@app.route('/categories/<category_name>', methods=['GET'])
+def view_companies_in_category_and_news(category_name):
+    category = Category.query.filter_by(name=category_name).first()
+    if not category:
+        return jsonify({"message": "Category not found."}), 404
+    
+    companies = Company.query.filter_by(category_id=category.id).all()
+    companies_info = []
+    for company in companies:
+        news_articles = fetch_news_for_company(company.name)
+        companies_info.append({
+            "company_name": company.name,
+            "category": category.name,
+            "news_articles": [{"title": article['title'], "url": article['url']} for article in news_articles]
+        })
+    
+    return jsonify(companies_info)
+
+@app.route('/companies/<company_id>', methods=['DELETE'])
+def delete_company(company_id):
+    company = Company.query.get(company_id)
+    if company:
+        db.session.delete(company)
+        db.session.commit()
+        return jsonify({"message": f"Company {company.name} deleted."}), 200
+    return jsonify({"message": "Company not found."}), 404
+
+@app.route('/users/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "User deleted successfully."}), 200
+    return jsonify({"message": "User not found."}), 404
+
+@app.route('/profile', methods=['GET'])
+def get_profile():
+    user_id = request.args.get('user_id')
+    if not user_id:
+        return jsonify({"message": "User ID is required"}), 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    favorites = Favorites.query.filter_by(user_id=user_id).all()
+    profile_data = {
+        "name": user.name,
+        "favorites": [{"company_name": favorite.company.name, "link": favorite.company.link} for favorite in favorites]
+    }
+    
+    return jsonify(profile_data)
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
-

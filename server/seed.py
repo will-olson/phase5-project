@@ -1,17 +1,77 @@
-#!/usr/bin/env python3
+import json
+from app import db, create_app
+from models import Company, Category, Favorites, User
 
-# Standard library imports
-from random import randint, choice as rc
+with open("companies.json", "r") as file:
+    companies_data = json.load(file)
 
-# Remote library imports
-from faker import Faker
 
-# Local imports
-from app import app
-from models import db
+app = create_app()
+with app.app_context():
+    
+    Company.query.delete()
+    Category.query.delete()
+    Favorites.query.delete()
+    User.query.delete()
+    db.session.commit()
 
-if __name__ == '__main__':
-    fake = Faker()
-    with app.app_context():
-        print("Starting seed...")
-        # Seed code goes here!
+    
+    categories_data = set(company["category"] for company in companies_data)
+    for category_name in categories_data:
+        existing_category = Category.query.filter_by(name=category_name).first()
+        if not existing_category:
+            new_category = Category(name=category_name)
+            db.session.add(new_category)
+    
+    
+    db.session.commit()
+
+    
+    for company in companies_data:
+        
+        category_name = company["category"]
+        category = Category.query.filter_by(name=category_name).first()
+
+        if not category:
+            print(f"Category '{category_name}' not found. Skipping company '{company['name']}'.")
+            continue
+        
+        
+        new_company = Company(
+            name=company["name"],
+            link=company.get("link", None),
+            indeed=company.get("indeed", None),
+            category_id=category.id
+        )
+        db.session.add(new_company)
+
+    
+    db.session.commit()
+
+    
+    users = [
+        User(name="Ethan", password="password123"),
+        User(name="Hannah", password="password123"),
+        User(name="Maddie", password="password123"),
+        User(name="William", password="password123")
+    ]
+
+    
+    for user in users:
+        db.session.add(user)
+    
+    
+    db.session.commit()
+
+    
+    for user in users:
+        
+        companies = Company.query.limit(3).all()
+        for company in companies:
+            favorite = Favorites(user_id=user.id, company_id=company.id)
+            db.session.add(favorite)
+
+    
+    db.session.commit()
+
+    print("Database seeded successfully!")
