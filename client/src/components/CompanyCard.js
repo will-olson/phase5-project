@@ -47,13 +47,22 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle, userId }) 
         setFavorite(isFavorite);
     }, [isFavorite]);
 
+    
+    if (!company) {
+        return <div>Loading...</div>; 
+    }
+
     return (
         <div className="company-card">
-            <h3>{company.name}</h3>
-            <h4>{company.category}</h4>
+            <h3>{company.name || 'Company Name Not Available'}</h3>
+            <h4>{company.category || 'Category Not Available'}</h4>
             <div className="company-links">
-                <a href={company.link} target="_blank" rel="noopener noreferrer" className="company-link">LinkedIn</a>
-                <a href={company.indeed} target="_blank" rel="noopener noreferrer" className="indeed-link">Indeed</a>
+                {company.link && (
+                    <a href={company.link} target="_blank" rel="noopener noreferrer" className="company-link">LinkedIn</a>
+                )}
+                {company.indeed && (
+                    <a href={company.indeed} target="_blank" rel="noopener noreferrer" className="indeed-link">Indeed</a>
+                )}
             </div>
             <button
                 className={`favorite-button ${favorite ? 'favorited' : ''}`}

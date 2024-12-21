@@ -1,24 +1,14 @@
-// client/src/components/News.js
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
-function News({ companyName }) {
-    const [articles, setArticles] = useState([]);
-
-    useEffect(() => {
-        fetch(`http://127.0.0.1:5555/news/${companyName}`)
-            .then(response => response.json())
-            .then(data => setArticles(data))
-            .catch(error => console.log(error));
-    }, [companyName]);
-
+function News({ news }) {
     return (
         <div className="container">
-            <h2 className="section-title">News for {companyName}</h2>
-            {articles.length === 0 ? (
+            <h2 className="section-title">News for {news.company_name}</h2>
+            {news.articles.length === 0 ? (
                 <p>No news available.</p>
             ) : (
                 <div className="company-tiles">
-                    {articles.map((article, index) => (
+                    {news.articles.map((article, index) => (
                         <div key={index} className="content-square">
                             <a href={article.url} className="link" target="_blank" rel="noopener noreferrer">
                                 {article.title}

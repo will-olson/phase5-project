@@ -85,10 +85,8 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({"message": "Invalid credentials"}), 401
 
-    return jsonify({"message": "Login successful!"}), 200
+    return jsonify({"message": "Login successful!", 'user_id': user.id, 'name': user.name}), 200
     
-
-
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
@@ -181,6 +179,23 @@ def view_companies_in_category_and_news(category_name):
         })
     
     return jsonify(companies_info)
+
+@app.route('/news/<int:company_id>', methods=['GET'])
+def get_news_for_company(company_id):
+    
+    company = Company.query.get(company_id)
+    if not company:
+        return jsonify({"message": "Company not found"}), 404
+    
+    
+    news_articles = fetch_news_for_company(company.name)
+
+    
+    return jsonify({
+        "company_name": company.name,
+        "articles": news_articles
+    })
+
 
 @app.route('/companies/<company_id>', methods=['DELETE'])
 def delete_company(company_id):

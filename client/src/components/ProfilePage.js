@@ -33,40 +33,46 @@ const ProfilePage = ({ loggedInUser }) => {
 
   const fetchFavorites = async (userId) => {
     try {
-        const response = await fetch(`/favorites?user_id=${userId}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-        });
-        if (response.ok) {
-            const favoritesData = await response.json();
-            setFavorites(favoritesData);
-            fetchNewsForFavorites(favoritesData);
-        }
+      const response = await fetch(`/favorites?user_id=${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+      if (response.ok) {
+        const favoritesData = await response.json();
+        setFavorites(favoritesData);
+        fetchNewsForFavorites(favoritesData);
+      }
     } catch (error) {
-        setError('Failed to load favorites');
-        console.error("Error fetching favorites:", error);
+      setError('Failed to load favorites');
+      console.error("Error fetching favorites:", error);
     }
-};
-
-  
+  };
 
   const fetchNewsForFavorites = async (favoriteCompanies) => {
     const newsPromises = favoriteCompanies.map(async (favorite) => {
       const response = await fetch(`/news/${favorite.company_id}`);
-      return response.ok ? await response.json() : [];
+      if (response.ok) {
+        const newsData = await response.json();
+        return {
+          company_name: newsData.company_name,
+          articles: newsData.articles
+        };
+      }
+      return { company_name: favorite.company.name, articles: [] };
     });
-
+  
     try {
       const allNews = await Promise.all(newsPromises);
-      setNews(allNews.flat());
+      setNews(allNews);
     } catch (error) {
       setError('Failed to load news');
       console.error("Error fetching news:", error);
     }
   };
+  
 
   const handleUnfavorite = async (companyId) => {
     setFadeOut(companyId);
@@ -110,10 +116,10 @@ const ProfilePage = ({ loggedInUser }) => {
       <div className="content-square">
         <h2 className="section-title">Favorite Companies</h2>
         <div className="company-tiles">
-          {favorites.map((favorite) => (
-            <div className={`company-tile ${fadeOut === favorite.company_id ? 'fade-out' : ''}`} key={favorite.company_id}>
-              <CompanyCard company={favorite.company} />
-              <button onClick={() => handleUnfavorite(favorite.company_id)}>Unfavorite</button>
+          {favorites.map((favorite, index) => (
+            <div className={`company-tile ${fadeOut === favorite.company_name ? 'fade-out' : ''}`} key={index}>
+              <CompanyCard company={{ name: favorite.company_name, link: favorite.link, category: favorite.category }} />
+              <button onClick={() => handleUnfavorite(favorite.company_name)}>Unfavorite</button>
             </div>
           ))}
         </div>
@@ -122,9 +128,13 @@ const ProfilePage = ({ loggedInUser }) => {
       <div className="content-square">
         <h2 className="section-title">Related News</h2>
         <div className="news-tile">
-          {news.map((newsItem) => (
-            <News key={newsItem.id} news={newsItem} />
-          ))}
+          {news.length > 0 ? (
+            news.map((newsItem, index) => (
+              <News key={index} news={newsItem} />
+            ))
+          ) : (
+            <p>No news available for your favorited companies.</p>
+          )}
         </div>
       </div>
     </div>
