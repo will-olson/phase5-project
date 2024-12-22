@@ -8,7 +8,6 @@ const ProfilePage = ({ loggedInUser }) => {
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [fadeOut, setFadeOut] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -40,10 +39,21 @@ const ProfilePage = ({ loggedInUser }) => {
         },
         credentials: 'include',
       });
+
       if (response.ok) {
         const favoritesData = await response.json();
-        setFavorites(favoritesData);
-        fetchNewsForFavorites(favoritesData);
+
+        
+        const updatedFavorites = favoritesData.map(favorite => ({
+          id: favorite.company_id,
+          name: favorite.company_name,
+          link: favorite.link,
+          category: favorite.category,
+          indeed: favorite.indeed,
+        }));
+
+        setFavorites(updatedFavorites);
+        fetchNewsForFavorites(updatedFavorites);
       }
     } catch (error) {
       setError('Failed to load favorites');
@@ -53,7 +63,7 @@ const ProfilePage = ({ loggedInUser }) => {
 
   const fetchNewsForFavorites = async (favoriteCompanies) => {
     const newsPromises = favoriteCompanies.map(async (favorite) => {
-      const response = await fetch(`/news/${favorite.company_id}`);
+      const response = await fetch(`/news/${favorite.id}`);
       if (response.ok) {
         const newsData = await response.json();
         return {
@@ -61,38 +71,15 @@ const ProfilePage = ({ loggedInUser }) => {
           articles: newsData.articles
         };
       }
-      return { company_name: favorite.company.name, articles: [] };
+      return { company_name: favorite.name, articles: [] };
     });
-  
+
     try {
       const allNews = await Promise.all(newsPromises);
       setNews(allNews);
     } catch (error) {
       setError('Failed to load news');
       console.error("Error fetching news:", error);
-    }
-  };
-  
-
-  const handleUnfavorite = async (companyId) => {
-    setFadeOut(companyId);
-    try {
-      const response = await fetch('/favorites', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ company_id: companyId }),
-      });
-      if (response.ok) {
-        setFavorites(favorites.filter(fav => fav.company_id !== companyId));
-      } else {
-        console.log('Error removing favorite');
-      }
-    } catch (error) {
-      console.error("Error removing favorite:", error);
-    } finally {
-      setFadeOut(null);
     }
   };
 
@@ -116,12 +103,24 @@ const ProfilePage = ({ loggedInUser }) => {
       <div className="content-square">
         <h2 className="section-title">Favorite Companies</h2>
         <div className="company-tiles">
-          {favorites.map((favorite, index) => (
-            <div className={`company-tile ${fadeOut === favorite.company_name ? 'fade-out' : ''}`} key={index}>
-              <CompanyCard company={{ name: favorite.company_name, link: favorite.link, category: favorite.category }} />
-              <button onClick={() => handleUnfavorite(favorite.company_name)}>Unfavorite</button>
-            </div>
-          ))}
+          {favorites.length > 0 ? (
+            favorites.map((favorite, index) => (
+              <div className="company-tile" key={index}>
+                <CompanyCard
+                  company={{
+                    id: favorite.id,
+                    name: favorite.name,
+                    link: favorite.link,
+                    category: favorite.category,
+                    indeed: favorite.indeed
+                  }}
+                  isFavorite={true}
+                />
+              </div>
+            ))
+          ) : (
+            <p>No favorite companies yet.</p>
+          )}
         </div>
       </div>
 

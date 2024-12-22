@@ -46,7 +46,7 @@ function App() {
     }, []);
 
     const fetchFavorites = (userId) => {
-        fetch(`${API_BASE_URL}/users/${userId}/favorites`)
+        fetch(`${API_BASE_URL}/favorites?user_id=${userId}`)
             .then((response) => response.json())
             .then((data) => setFavorites(data))
             .catch((error) => console.log(error));
@@ -180,11 +180,15 @@ function App() {
                             ) : (
                                 <div>
                                     <h2>Users</h2>
-                                    <ul>
+                                    <div className="users-container">
                                         {users.map((user) => (
-                                            <li key={user.id}>{user.name}</li>
+                                            <div key={user.id} className="user-container">
+                                                <div className="user-info">
+                                                    <h4>{user.name}</h4>
+                                                </div>
+                                            </div>
                                         ))}
-                                    </ul>
+                                    </div>
                                     <input
                                         type="text"
                                         placeholder="Add New User"

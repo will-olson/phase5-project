@@ -98,6 +98,7 @@ def companies():
         companies = Company.query.all()
         return jsonify([
             {
+                "id": company.id,
                 "name": company.name,
                 "category": company.category.name if company.category else None,
                 "link": company.link,
@@ -130,32 +131,37 @@ def manage_favorites():
     if request.method == 'GET':
         favorites = Favorites.query.filter_by(user_id=user_id).all()
         return jsonify([{
-            "company_id": favorite.company_id,
-            "company_name": favorite.company.name,
-            "link": favorite.company.link
-        } for favorite in favorites])
+            "company_id": fav.company_id,
+            "company_name": fav.company.name,
+            "link": fav.company.link,
+            "indeed": fav.company.indeed,
+            "category": fav.company.category.name if fav.company.category else None
+        } for fav in favorites]), 200
 
-    elif request.method == 'POST':
-        data = request.get_json()
-        company_id = data.get('company_id')
-        company = Company.query.get(company_id)
-        if company:
-            new_favorite = Favorites(user_id=user_id, company_id=company_id)
-            db.session.add(new_favorite)
-            db.session.commit()
-            return jsonify({"message": f"Company {company.name} added to favorites."}), 201
-        return jsonify({"message": "Company not found."}), 404
+    data = request.get_json()
+    company_id = data.get('company_id')
+    if not company_id:
+        return jsonify({"message": "Company ID is required"}), 400
 
-    elif request.method == 'DELETE':
-        data = request.get_json()
-        company_id = data.get('company_id')
+    company = Company.query.get(company_id)
+    if not company:
+        return jsonify({"message": "Company not found"}), 404
+
+    if request.method == 'POST':
+        if Favorites.query.filter_by(user_id=user_id, company_id=company_id).first():
+            return jsonify({"message": "Company already in favorites"}), 200
+        new_favorite = Favorites(user_id=user_id, company_id=company_id)
+        db.session.add(new_favorite)
+        db.session.commit()
+        return jsonify({"message": f"Company '{company.name}' added to favorites."}), 201
+
+    if request.method == 'DELETE':
         favorite = Favorites.query.filter_by(user_id=user_id, company_id=company_id).first()
-        if favorite:
-            db.session.delete(favorite)
-            db.session.commit()
-            return jsonify({"message": f"Company {favorite.company.name} removed from favorites."}), 200
-        return jsonify({"message": "Favorite not found."}), 404
-
+        if not favorite:
+            return jsonify({"message": "Favorite not found"}), 404
+        db.session.delete(favorite)
+        db.session.commit()
+        return jsonify({"message": f"Company '{company.name}' removed from favorites."}), 200
 
 @app.route('/categories', methods=['GET'])
 def get_categories():
@@ -228,10 +234,17 @@ def get_profile():
     favorites = Favorites.query.filter_by(user_id=user_id).all()
     profile_data = {
         "name": user.name,
-        "favorites": [{"company_name": favorite.company.name, "link": favorite.company.link} for favorite in favorites]
+        "favorites": [{
+            "id": favorite.company.id, 
+            "company_name": favorite.company.name,
+            "link": favorite.company.link,
+            "indeed": favorite.company.indeed,
+            "category": favorite.company.category.name if favorite.company.category else None
+        } for favorite in favorites]
     }
     
     return jsonify(profile_data)
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from 'react';
 
-function CompanyCard({ company, isFavorite = false, onFavoriteToggle, userId }) {
+function CompanyCard({ company, isFavorite = false, onFavoriteToggle }) {
     const [favorite, setFavorite] = useState(isFavorite);
+    const [userId, setUserId] = useState(localStorage.getItem('user_id'));
 
-    const checkLoginStatus = async () => {
+    useEffect(() => {
+        const handleStorageChange = () => {
+            setUserId(localStorage.getItem('user_id'));
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, []);
+
+    const checkLoginStatus = () => {
         if (!userId) {
             alert('You must log in first to add to favorites');
             return false;
@@ -11,22 +22,38 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle, userId }) 
         return true;
     };
 
-    const handleFavoriteClick = async (companyId, newFavoriteStatus) => {
-        const isLoggedIn = await checkLoginStatus();
-        if (!isLoggedIn) return;
+    const handleFavoriteClick = async (newFavoriteStatus) => {
+        if (!checkLoginStatus()) return;
 
+        console.log('Company ID:', company.id);
+        console.log('User ID:', userId);
+        
+    if (!company.id || !userId) {
+        if (!company.id) {
+            console.error('Company ID is missing');
+        }
+        if (!userId) {
+            console.error('User ID is missing');
+        }
+        console.error('Company ID and User ID are required');
+        return;
+    }
+    
         try {
-            const response = await fetch(`http://localhost:5555/favorites`, {
+            const url = `http://localhost:5555/favorites?user_id=${userId}&company_id=${company.id}`;
+            console.log(`Sending request to: ${url}`);
+    
+            const response = await fetch(`http://localhost:5555/favorites?user_id=${userId}&company_id=${company.id}`, {
                 method: newFavoriteStatus ? 'POST' : 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                credentials: 'include',
                 body: JSON.stringify({
                     user_id: userId,
-                    company_id: companyId,
+                    company_id: company.id,
                 }),
             });
+            
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -34,23 +61,13 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle, userId }) 
             }
 
             setFavorite(newFavoriteStatus);
-
-            if (onFavoriteToggle) {
-                onFavoriteToggle(companyId, newFavoriteStatus);
-            }
+            onFavoriteToggle && onFavoriteToggle(company.id, newFavoriteStatus);
         } catch (error) {
             console.error('Failed to update favorite status:', error);
         }
     };
 
-    useEffect(() => {
-        setFavorite(isFavorite);
-    }, [isFavorite]);
-
-    
-    if (!company) {
-        return <div>Loading...</div>; 
-    }
+    useEffect(() => setFavorite(isFavorite), [isFavorite]);
 
     return (
         <div className="company-card">
@@ -66,10 +83,7 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle, userId }) 
             </div>
             <button
                 className={`favorite-button ${favorite ? 'favorited' : ''}`}
-                onClick={() => {
-                    const newFavoriteStatus = !favorite;
-                    handleFavoriteClick(company.id, newFavoriteStatus);
-                }}
+                onClick={() => handleFavoriteClick(!favorite)}
                 aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
             >
                 {favorite ? '★' : '☆'}

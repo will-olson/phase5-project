@@ -5,14 +5,10 @@ function CompaniesPage() {
     const [companies, setCompanies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [randomCompanies, setRandomCompanies] = useState([]);
-    const [userId, setUserId] = useState(null);
+    const [userId, setUserId] = useState(localStorage.getItem('user_id'));
 
     useEffect(() => {
-        const currentUserId = new URLSearchParams(window.location.search).get('user_id');
-        if (currentUserId) {
-            setUserId(currentUserId);
-        }
-
+        
         fetch('http://127.0.0.1:5555/companies', {
           method: 'GET',
           credentials: 'include',
@@ -23,8 +19,19 @@ function CompaniesPage() {
             setRandomCompanies(getRandomCompanies(data, 10));
           })
           .catch(error => console.log('Error fetching companies:', error));
+
+        
+        const handleStorageChange = () => {
+            setUserId(localStorage.getItem('user_id'));
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
-      
 
     
     const getRandomCompanies = (companiesArray, count) => {
@@ -46,26 +53,44 @@ function CompaniesPage() {
         <div className="container">
             <h2>Companies</h2>
 
-            {!userId && <p>You must be logged in to view company details and add favorites.</p>}
+            
+            {!userId && 
+                <div className="company-tile">
+                    <p>You must be logged in to view company details and add favorites.</p>
+                </div>
+            }
 
-            <div className="search-bar">
-                <input
-                    type="text"
-                    placeholder="Search for companies..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="search-input"
-                />
-            </div>
+            
+            {userId && (
+                <div className="search-bar">
+                    <input
+                        type="text"
+                        placeholder="Search for companies..."
+                        value={searchQuery}
+                        onChange={handleSearchChange}
+                        className="search-input"
+                    />
+                </div>
+            )}
 
-            <h3>All Companies</h3>
-            <div className="company-grid">
-                {filteredCompanies.map(company => (
-                    <CompanyCard key={company.name} company={company} userId={userId}/>
-                ))}
-            </div>
+           
+           {userId && (
+                <>
+                    <h3>All Companies</h3>
+                    <div className="company-grid">
+                        {filteredCompanies.length > 0 ? (
+                            filteredCompanies.map(company => (
+                                <CompanyCard key={company.name} company={company} userId={userId} />
+                            ))
+                        ) : (
+                            <p>No companies found matching your search.</p>
+                        )}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
+
 
 export default CompaniesPage;

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Navbar({ isLoggedIn, onLogout }) {
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const navigate = useNavigate();
 
     const toggleDarkMode = () => {
         setIsDarkMode(!isDarkMode);
@@ -16,25 +17,28 @@ function Navbar({ isLoggedIn, onLogout }) {
 
         if (response.ok) {
             onLogout(false);
+            navigate('/');
         }
+    };
+
+    const handleLogin = () => {
+        navigate('/');
     };
 
     return (
         <nav className="navbar">
-            <Link to="/" className="navbar-link">Home</Link>
-            <Link to="/companies" className="navbar-link">Companies</Link>
-
-            <Link to="/industry-news" className="navbar-link">Industry News</Link>
+            <button onClick={() => navigate('/')} className="navbar-link">Home</button>
+            <button onClick={() => navigate('/companies')} className="navbar-link">Companies</button>
+            <button onClick={() => navigate('/industry-news')} className="navbar-link">Industry News</button>
 
             <button onClick={toggleDarkMode} className="navbar-link">
                 {isDarkMode ? 'Light Mode' : 'Dark Mode'}
             </button>
 
-            {isLoggedIn ? (
-                <button onClick={handleLogout} className="navbar-link">Logout</button>
-            ) : (
-                <Link to="/login" className="navbar-link">Login</Link>
-            )}
+           
+            <button onClick={isLoggedIn ? handleLogout : handleLogin} className="navbar-link">
+                {isLoggedIn ? 'Logout' : 'Login'}
+            </button>
         </nav>
     );
 }
