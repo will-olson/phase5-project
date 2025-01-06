@@ -1,4 +1,3 @@
-// client/src/components/CompanyForm.js
 import React, { useState } from 'react';
 
 function CompanyForm({ onCompanyAdd }) {
@@ -9,24 +8,42 @@ function CompanyForm({ onCompanyAdd }) {
         category_name: ''
     });
 
+    const [error, setError] = useState('');
+
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        
+        if (!company.name || !company.link) {
+            setError('Company name and link are required');
+            return;
+        }
+
         fetch('http://127.0.0.1:5555/companies', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(company),
         })
-            .then(response => response.json())
-            .then(data => {
-                onCompanyAdd(data);
-                setCompany({ name: '', link: '', indeed: '', category_name: '' });
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.message) {
+                    onCompanyAdd(data);
+                    setCompany({ name: '', link: '', indeed: '', category_name: '' });
+                    setError('');
+                } else {
+                    setError('Error adding company');
+                }
             })
-            .catch(error => console.log(error));
+            .catch((error) => {
+                console.log(error);
+                setError('An error occurred while adding the company');
+            });
     };
 
     return (
         <div className="content-square">
             <form onSubmit={handleSubmit}>
+                {error && <p className="error-message">{error}</p>}
                 <input
                     type="text"
                     placeholder="Company Name"

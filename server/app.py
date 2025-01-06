@@ -202,25 +202,6 @@ def get_news_for_company(company_id):
         "articles": news_articles
     })
 
-
-@app.route('/companies/<company_id>', methods=['DELETE'])
-def delete_company(company_id):
-    company = Company.query.get(company_id)
-    if company:
-        db.session.delete(company)
-        db.session.commit()
-        return jsonify({"message": f"Company {company.name} deleted."}), 200
-    return jsonify({"message": "Company not found."}), 404
-
-@app.route('/users/<user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    user = User.query.get(user_id)
-    if user:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({"message": "User deleted successfully."}), 200
-    return jsonify({"message": "User not found."}), 404
-
 @app.route('/profile', methods=['GET'])
 def get_profile():
     user_id = request.args.get('user_id')
@@ -245,6 +226,41 @@ def get_profile():
     
     return jsonify(profile_data)
 
+@app.route('/companies/<company_id>', methods=['PATCH'])
+def update_company(company_id):
+    company = Company.query.get(company_id)
+    if not company:
+        return jsonify({"message": "Company not found"}), 404
+    
+    data = request.get_json()
+    link = data.get('link')
+    indeed = data.get('indeed')
+    
+    if link:
+        company.link = link
+    if indeed:
+        company.indeed = indeed
+    
+    db.session.commit()
+    return jsonify({"message": f"Company {company.name} updated successfully."}), 200
+
+@app.route('/companies/<company_id>', methods=['DELETE'])
+def delete_company(company_id):
+    company = Company.query.get(company_id)
+    if company:
+        db.session.delete(company)
+        db.session.commit()
+        return jsonify({"message": f"Company {company.name} deleted."}), 200
+    return jsonify({"message": "Company not found."}), 404
+
+@app.route('/users/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get(user_id)
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({"message": "User deleted successfully."}), 200
+    return jsonify({"message": "User not found."}), 404
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

@@ -8,44 +8,38 @@ function CompaniesPage() {
     const [userId, setUserId] = useState(localStorage.getItem('user_id'));
 
     useEffect(() => {
-        
         fetch('http://127.0.0.1:5555/companies', {
-          method: 'GET',
-          credentials: 'include',
+            method: 'GET',
+            credentials: 'include',
         })
-          .then(response => response.json())
-          .then(data => {
-            setCompanies(data);
-            setRandomCompanies(getRandomCompanies(data, 10));
-          })
-          .catch(error => console.log('Error fetching companies:', error));
+            .then(response => response.json())
+            .then(data => {
+                setCompanies(data);
+                setRandomCompanies(getRandomCompanies(data, 10));
+            })
+            .catch(error => console.log('Error fetching companies:', error));
 
-        
         const handleStorageChange = () => {
             setUserId(localStorage.getItem('user_id'));
         };
 
         window.addEventListener('storage', handleStorageChange);
 
-        
         return () => {
             window.removeEventListener('storage', handleStorageChange);
         };
     }, []);
 
-    
     const getRandomCompanies = (companiesArray, count) => {
         const shuffled = [...companiesArray].sort(() => 0.5 - Math.random());
         return shuffled.slice(0, count);
     };
 
-    
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
-    
-    const filteredCompanies = companies.filter(company => 
+    const filteredCompanies = companies.filter(company =>
         company.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -53,14 +47,12 @@ function CompaniesPage() {
         <div className="container">
             <h2>Companies</h2>
 
-            
             {!userId && 
                 <div className="company-tile">
                     <p>You must be logged in to view company details and add favorites.</p>
                 </div>
             }
 
-            
             {userId && (
                 <div className="search-bar">
                     <input
@@ -73,14 +65,17 @@ function CompaniesPage() {
                 </div>
             )}
 
-           
-           {userId && (
+            {userId && (
                 <>
                     <h3>All Companies</h3>
                     <div className="company-grid">
                         {filteredCompanies.length > 0 ? (
                             filteredCompanies.map(company => (
-                                <CompanyCard key={company.name} company={company} userId={userId} />
+                                <CompanyCard
+                                    key={company.id}
+                                    company={company}
+                                    userId={userId}
+                                />
                             ))
                         ) : (
                             <p>No companies found matching your search.</p>
@@ -91,6 +86,5 @@ function CompaniesPage() {
         </div>
     );
 }
-
 
 export default CompaniesPage;

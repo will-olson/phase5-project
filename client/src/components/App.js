@@ -5,6 +5,7 @@ import Navbar from './NavBar';
 import ProfilePage from './ProfilePage';
 import IndustryNews from './IndustryNews';
 import CompaniesPage from './CompaniesPage';
+import CompanyForm from './CompanyForm';
 
 const API_BASE_URL = 'http://127.0.0.1:5555';
 
@@ -13,12 +14,6 @@ function App() {
     const [companies, setCompanies] = useState([]);
     const [newUserName, setNewUserName] = useState('');
     const [newUserPassword, setNewUserPassword] = useState('');
-    const [newCompany, setNewCompany] = useState({
-        name: '',
-        link: '',
-        indeed: '',
-        category_name: '',
-    });
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [loginData, setLoginData] = useState({ name: '', password: '' });
     const [favorites, setFavorites] = useState([]);
@@ -101,23 +96,9 @@ function App() {
             .catch((error) => console.log(error));
     };
 
-    const handleAddCompany = () => {
-        fetch(`${API_BASE_URL}/companies`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newCompany),
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.message) {
-                    setCompanies([...companies, newCompany]);
-                    alert(`Company ${newCompany.name} added successfully!`);
-                } else {
-                    alert('Error adding company');
-                }
-                setNewCompany({ name: '', link: '', indeed: '', category_name: '' });
-            })
-            .catch((error) => console.log(error));
+    const handleCompanyAdd = (company) => {
+        setCompanies((prevCompanies) => [...prevCompanies, company]);
+        alert(`Company ${company.name} added successfully!`);
     };
 
     return (
@@ -145,31 +126,7 @@ function App() {
                                 <div>
                                     <h2>Welcome, {loggedInUser.name}!</h2>
                                     <h3>Add New Company</h3>
-                                    <input
-                                        type="text"
-                                        placeholder="Company Name"
-                                        value={newCompany.name}
-                                        onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Company Link"
-                                        value={newCompany.link}
-                                        onChange={(e) => setNewCompany({ ...newCompany, link: e.target.value })}
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Indeed Link"
-                                        value={newCompany.indeed}
-                                        onChange={(e) => setNewCompany({ ...newCompany, indeed: e.target.value })}
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="Category"
-                                        value={newCompany.category_name}
-                                        onChange={(e) => setNewCompany({ ...newCompany, category_name: e.target.value })}
-                                    />
-                                    <button onClick={handleAddCompany}>Add Company</button>
+                                    <CompanyForm onCompanyAdd={handleCompanyAdd} />
                                     <ProfilePage
                                         loggedInUser={loggedInUser}
                                         favorites={favorites}
