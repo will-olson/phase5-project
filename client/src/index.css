@@ -246,27 +246,33 @@ body.dark-mode .company-card {
 }
 
 
-.company-links .company-link, .company-links .indeed-link {
+
+.company-links .company-link, 
+.company-links .indeed-link {
   color: var(--color-link);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
-  padding: 0.5rem 1rem;
+  padding: 0.4rem 1.8rem;
   border-radius: var(--content-border-radius);
   border: 1px solid var(--color-link);
   transition: background-color 0.3s ease, color 0.3s ease;
   cursor: pointer;
+  margin: 0.5rem;
 }
 
-.company-links .company-link:hover, .company-links .indeed-link:hover {
+.company-links .company-link:hover, 
+.company-links .indeed-link:hover {
   background-color: var(--color-link);
   color: #ffffff;
 }
 
-body.dark-mode .company-links .company-link, body.dark-mode .company-links .indeed-link {
+body.dark-mode .company-links .company-link, 
+body.dark-mode .company-links .indeed-link {
   color: var(--dark-color-link);
 }
 
-body.dark-mode .company-links .company-link:hover, body.dark-mode .company-links .indeed-link:hover {
+body.dark-mode .company-links .company-link:hover, 
+body.dark-mode .company-links .indeed-link:hover {
   background-color: var(--dark-color-link);
   color: #ffffff;
 }
@@ -274,7 +280,7 @@ body.dark-mode .company-links .company-link:hover, body.dark-mode .company-links
 
 .favorite-button {
   font-size: 1.5rem;
-  padding: 0.4rem 0.8rem;
+  padding: 0.5rem 1.2rem;
   margin: 0.5rem 0;
   width: auto;
   max-width: 50px;
@@ -285,7 +291,9 @@ body.dark-mode .company-links .company-link:hover, body.dark-mode .company-links
   border-radius: var(--content-border-radius);
   cursor: pointer;
   transition: background-color 0.3s ease, color 0.3s ease;
-  display: block;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin-left: auto;
   margin-right: auto;
 }
@@ -293,6 +301,15 @@ body.dark-mode .company-links .company-link:hover, body.dark-mode .company-links
 .favorite-button:hover {
   background-color: var(--color-link-hover);
 }
+
+body.dark-mode .favorite-button {
+  background-color: var(--dark-color-link);
+}
+
+body.dark-mode .favorite-button:hover {
+  background-color: var(--dark-color-link-hover);
+}
+
 
 .industry-news-container {
   display: flex;
