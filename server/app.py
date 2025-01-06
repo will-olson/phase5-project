@@ -12,9 +12,8 @@ import requests
 import openai
 from openai import OpenAI
 
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-
 load_dotenv()
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -60,18 +59,14 @@ def fetch_news_for_company(company_name, desired_article_count=5):
 def career_assistant():
     
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {OPENAI_API_KEY}",
     }
-
     
     data = request.get_json()
-
     
     print(f"Received data: {data}")
-
     
     scope_of_analysis = data.get('scope_of_analysis', [])
     sentiment_tone = data.get('sentiment_tone', 'Neutral')
@@ -81,9 +76,9 @@ def career_assistant():
     industry_focus = data.get('industry_focus', [])
     specific_topics = data.get('specific_topics', '')
     preferred_format = data.get('preferred_format', 'Bullet Points')
-
     
-    prompt = f"Provide a career analysis based on the following preferences:\n"
+    prompt = f"Provide a personalized career analysis based on the following preferences:\n"
+    prompt += f"Target: {data.get('target', 'Company or Industry')}\n"
     prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
     prompt += f"Sentiment Tone: {sentiment_tone}\n"
     prompt += f"Level of Detail: {level_of_detail}\n"
@@ -92,37 +87,30 @@ def career_assistant():
     prompt += f"Industry Focus: {', '.join(industry_focus)}\n"
     prompt += f"Specific Topics: {specific_topics}\n"
     prompt += f"Preferred Format: {preferred_format}\n"
-
     
     print(f"Generated prompt: {prompt}")
-
     
     api_data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7
     }
-
     try:
         
         response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=api_data)
         response.raise_for_status() 
-
         
         api_response = response.json()
         print(f"OpenAI API response: {api_response}")
-
         
         ai_response = api_response['choices'][0]['message']['content'].strip()
-
         
         return jsonify({"response": ai_response}), 200
-
     except requests.exceptions.RequestException as e:
         
         print(f"Error during OpenAI request: {e}")
         return jsonify({"error": str(e)}), 500
-
+    
 def create_app():
     return app
 
