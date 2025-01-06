@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import time
+import os
+from dotenv import load_dotenv
 
 from flask import Flask, request, jsonify, session
 from config import db, api, migrate, CORS
@@ -9,10 +11,13 @@ import bcrypt
 import requests
 
 
-NEWS_API_KEY = "01376e4cfa834ceabaeac2a7025c77a5"
+load_dotenv()
+
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
 news_cache = {}
 CACHE_TTL = 86400
-
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
@@ -32,6 +37,7 @@ def fetch_news_for_company(company_name, desired_article_count=5):
         if current_time - timestamp < CACHE_TTL:
             return [article for article in cached_data if article['title'] != '[Removed]'][:desired_article_count]
 
+    
     response = requests.get("https://newsapi.org/v2/everything", params={
         "q": company_name,
         "apiKey": NEWS_API_KEY,
