@@ -96,6 +96,7 @@ function App() {
             .catch((error) => console.log(error));
     };
 
+    
     const handleCompanyAdd = (company) => {
         setCompanies((prevCompanies) => [...prevCompanies, company]);
         alert(`Company ${company.name} added successfully!`);
@@ -126,6 +127,7 @@ function App() {
                                 <div>
                                     <h2>Welcome, {loggedInUser.name}!</h2>
                                     <h3>Add New Company</h3>
+                                    
                                     <CompanyForm onCompanyAdd={handleCompanyAdd} />
                                     <ProfilePage
                                         loggedInUser={loggedInUser}

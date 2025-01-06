@@ -31,7 +31,7 @@ function CompanyForm({ onCompanyAdd }) {
                     setCompany({ name: '', link: '', indeed: '', category_name: '' });
                     setError('');
                 } else {
-                    setError('Error adding company');
+                    setError('Category must exist');
                 }
             })
             .catch((error) => {
