@@ -6,6 +6,7 @@ import ProfilePage from './ProfilePage';
 import IndustryNews from './IndustryNews';
 import CompaniesPage from './CompaniesPage';
 import CompanyForm from './CompanyForm';
+import CareerAssistant from './CareerAssistant'
 
 const API_BASE_URL = 'http://127.0.0.1:5555';
 
@@ -96,7 +97,6 @@ function App() {
             .catch((error) => console.log(error));
     };
 
-    
     const handleCompanyAdd = (company) => {
         setCompanies((prevCompanies) => [...prevCompanies, company]);
         alert(`Company ${company.name} added successfully!`);
@@ -108,77 +108,41 @@ function App() {
                 <Navbar isLoggedIn={loggedInUser} onLogout={handleLogout} />
 
                 <Routes>
-                    <Route
-                        path="/profile"
-                        element={
-                            <ProfilePage
-                                loggedInUser={loggedInUser}
-                                favorites={favorites}
-                                fetchFavorites={() => fetchFavorites(loggedInUser?.id)}
-                            />
-                        }
-                    />
+                    <Route path="/profile" element={<ProfilePage loggedInUser={loggedInUser} favorites={favorites} fetchFavorites={() => fetchFavorites(loggedInUser?.id)} />} />
                     <Route path="/industry-news" element={<IndustryNews />} />
                     <Route path="/companies" element={<CompaniesPage />} />
-                    <Route
-                        path="/"
-                        element={
-                            loggedInUser ? (
-                                <div>
-                                    <h2>Welcome, {loggedInUser.name}!</h2>
-                                    <h3>Add New Company</h3>
-                                    
-                                    <CompanyForm onCompanyAdd={handleCompanyAdd} />
-                                    <ProfilePage
-                                        loggedInUser={loggedInUser}
-                                        favorites={favorites}
-                                        fetchFavorites={() => fetchFavorites(loggedInUser?.id)}
-                                    />
-                                    <button onClick={handleLogout}>Logout</button>
-                                </div>
-                            ) : (
-                                <div>
-                                    <h2>Users</h2>
-                                    <div className="users-container">
-                                        {users.map((user) => (
-                                            <div key={user.id} className="user-container">
-                                                <div className="user-info">
-                                                    <h4>{user.name}</h4>
-                                                </div>
+                    <Route path="/career-assistant" element={<CareerAssistant />} /> {/* New route for Career Assistant */}
+                    <Route path="/" element={
+                        loggedInUser ? (
+                            <div>
+                                <h2>Welcome, {loggedInUser.name}!</h2>
+                                <h3>Add New Company</h3>
+                                <CompanyForm onCompanyAdd={handleCompanyAdd} />
+                                <ProfilePage loggedInUser={loggedInUser} favorites={favorites} fetchFavorites={() => fetchFavorites(loggedInUser?.id)} />
+                                <button onClick={handleLogout}>Logout</button>
+                            </div>
+                        ) : (
+                            <div>
+                                <h2>Users</h2>
+                                <div className="users-container">
+                                    {users.map((user) => (
+                                        <div key={user.id} className="user-container">
+                                            <div className="user-info">
+                                                <h4>{user.name}</h4>
                                             </div>
-                                        ))}
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Add New User"
-                                        value={newUserName}
-                                        onChange={(e) => setNewUserName(e.target.value)}
-                                    />
-                                    <input
-                                        type="password"
-                                        placeholder="Password"
-                                        value={newUserPassword}
-                                        onChange={(e) => setNewUserPassword(e.target.value)}
-                                    />
-                                    <button onClick={handleAddUser}>Add User</button>
-                                    <h3>Login</h3>
-                                    <input
-                                        type="text"
-                                        placeholder="Username"
-                                        value={loginData.name}
-                                        onChange={(e) => setLoginData({ ...loginData, name: e.target.value })}
-                                    />
-                                    <input
-                                        type="password"
-                                        placeholder="Password"
-                                        value={loginData.password}
-                                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
-                                    />
-                                    <button onClick={handleLogin}>Login</button>
+                                        </div>
+                                    ))}
                                 </div>
-                            )
-                        }
-                    />
+                                <input type="text" placeholder="Add New User" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
+                                <input type="password" placeholder="Password" value={newUserPassword} onChange={(e) => setNewUserPassword(e.target.value)} />
+                                <button onClick={handleAddUser}>Add User</button>
+                                <h3>Login</h3>
+                                <input type="text" placeholder="Username" value={loginData.name} onChange={(e) => setLoginData({ ...loginData, name: e.target.value })} />
+                                <input type="password" placeholder="Password" value={loginData.password} onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} />
+                                <button onClick={handleLogin}>Login</button>
+                            </div>
+                        )
+                    } />
                 </Routes>
             </div>
         </Router>

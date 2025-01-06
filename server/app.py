@@ -9,7 +9,10 @@ from config import db, api, migrate, CORS
 from models import Company, Category, User, Favorites
 import bcrypt
 import requests
+import openai
+from openai import OpenAI
 
+client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 load_dotenv()
 
@@ -37,7 +40,7 @@ def fetch_news_for_company(company_name, desired_article_count=5):
         if current_time - timestamp < CACHE_TTL:
             return [article for article in cached_data if article['title'] != '[Removed]'][:desired_article_count]
 
-    
+
     response = requests.get("https://newsapi.org/v2/everything", params={
         "q": company_name,
         "apiKey": NEWS_API_KEY,
@@ -53,6 +56,72 @@ def fetch_news_for_company(company_name, desired_article_count=5):
     else:
         return []
 
+@app.route('/career-assistant', methods=['POST'])
+def career_assistant():
+    
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+    }
+
+    
+    data = request.get_json()
+
+    
+    print(f"Received data: {data}")
+
+    
+    scope_of_analysis = data.get('scope_of_analysis', [])
+    sentiment_tone = data.get('sentiment_tone', 'Neutral')
+    level_of_detail = data.get('level_of_detail', 'Brief')
+    preferred_sources = data.get('preferred_sources', [])
+    time_frame = data.get('time_frame', 'Last 30 days')
+    industry_focus = data.get('industry_focus', [])
+    specific_topics = data.get('specific_topics', '')
+    preferred_format = data.get('preferred_format', 'Bullet Points')
+
+    
+    prompt = f"Provide a career analysis based on the following preferences:\n"
+    prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
+    prompt += f"Sentiment Tone: {sentiment_tone}\n"
+    prompt += f"Level of Detail: {level_of_detail}\n"
+    prompt += f"Preferred News Sources: {', '.join(preferred_sources)}\n"
+    prompt += f"Time Frame: {time_frame}\n"
+    prompt += f"Industry Focus: {', '.join(industry_focus)}\n"
+    prompt += f"Specific Topics: {specific_topics}\n"
+    prompt += f"Preferred Format: {preferred_format}\n"
+
+    
+    print(f"Generated prompt: {prompt}")
+
+    
+    api_data = {
+        "model": "gpt-4o-mini",
+        "messages": [{"role": "user", "content": prompt}],
+        "temperature": 0.7
+    }
+
+    try:
+        
+        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=api_data)
+        response.raise_for_status() 
+
+        
+        api_response = response.json()
+        print(f"OpenAI API response: {api_response}")
+
+        
+        ai_response = api_response['choices'][0]['message']['content'].strip()
+
+        
+        return jsonify({"response": ai_response}), 200
+
+    except requests.exceptions.RequestException as e:
+        
+        print(f"Error during OpenAI request: {e}")
+        return jsonify({"error": str(e)}), 500
 
 def create_app():
     return app
@@ -66,12 +135,12 @@ def users():
     if request.method == 'GET':
         users = User.query.all()
         return jsonify([{"id": user.id, "name": user.name} for user in users])
-    
+
     if request.method == 'POST':
         data = request.get_json()
         name = data.get('name')
         password = data.get('password')
-        
+
         existing_user = User.query.filter_by(name=name).first()
         if existing_user:
             return jsonify({"message": "User already exists"}), 400
@@ -92,7 +161,7 @@ def login():
         return jsonify({"message": "Invalid credentials"}), 401
 
     return jsonify({"message": "Login successful!", 'user_id': user.id, 'name': user.name}), 200
-    
+
 @app.route('/logout', methods=['POST'])
 def logout():
     session.pop('user_id', None)
@@ -111,18 +180,18 @@ def companies():
                 "indeed": company.indeed
             } for company in companies
         ])
-    
+
     if request.method == 'POST':
         data = request.get_json()
         name = data.get('name')
         link = data.get('link')
         indeed = data.get('indeed')
         category_name = data.get('category_name')
-        
+
         category = Category.query.filter_by(name=category_name).first()
         if not category:
             return jsonify({"error": "Category not found"}), 400
-        
+
         new_company = Company(name=name, link=link, indeed=indeed, category=category)
         db.session.add(new_company)
         db.session.commit()
@@ -179,7 +248,7 @@ def view_companies_in_category_and_news(category_name):
     category = Category.query.filter_by(name=category_name).first()
     if not category:
         return jsonify({"message": "Category not found."}), 404
-    
+
     companies = Company.query.filter_by(category_id=category.id).all()
     companies_info = []
     for company in companies:
@@ -189,20 +258,20 @@ def view_companies_in_category_and_news(category_name):
             "category": category.name,
             "news_articles": [{"title": article['title'], "url": article['url']} for article in news_articles]
         })
-    
+
     return jsonify(companies_info)
 
 @app.route('/news/<int:company_id>', methods=['GET'])
 def get_news_for_company(company_id):
-    
+
     company = Company.query.get(company_id)
     if not company:
         return jsonify({"message": "Company not found"}), 404
-    
-    
+
+
     news_articles = fetch_news_for_company(company.name)
 
-    
+
     return jsonify({
         "company_name": company.name,
         "articles": news_articles
@@ -217,7 +286,7 @@ def get_profile():
     user = User.query.get(user_id)
     if not user:
         return jsonify({"message": "User not found"}), 404
-    
+
     favorites = Favorites.query.filter_by(user_id=user_id).all()
     profile_data = {
         "name": user.name,
@@ -229,7 +298,7 @@ def get_profile():
             "category": favorite.company.category.name if favorite.company.category else None
         } for favorite in favorites]
     }
-    
+
     return jsonify(profile_data)
 
 @app.route('/companies/<company_id>', methods=['PATCH'])
@@ -237,16 +306,16 @@ def update_company(company_id):
     company = Company.query.get(company_id)
     if not company:
         return jsonify({"message": "Company not found"}), 404
-    
+
     data = request.get_json()
     link = data.get('link')
     indeed = data.get('indeed')
-    
+
     if link:
         company.link = link
     if indeed:
         company.indeed = indeed
-    
+
     db.session.commit()
     return jsonify({"message": f"Company {company.name} updated successfully."}), 200
 
