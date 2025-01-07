@@ -54,8 +54,8 @@ def fetch_news_for_company(company_name, desired_article_count=5):
         return [article for article in articles if article['title'] != '[Removed]'][:desired_article_count]
     else:
         return []
+    
 import logging
-
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -96,8 +96,9 @@ def career_assistant():
             [f"- {company['company_name']} (Category: {company['category']})" for company in favorite_companies]
         ) + "\n\n"
         favorites_prompt += "Recent news articles:\n" + "\n".join(
-            [f"{news['company_name']}:\n" + "\n".join([f"  - {article['title']} ({article['url']})" for article in news['news_articles']]) for news in news_details]
+            [f"{news['company_name']}:\n" + "\n".join([f"  - <a href='{article['url']}' target='_blank'>{article['title']}</a>" for article in news['news_articles']]) for news in news_details]
         ) + "\n"
+
     
     
     logging.debug(f"Generated AI prompt: {favorites_prompt}")
@@ -134,6 +135,7 @@ def career_assistant():
     if specific_topics:
         prompt += f"Specific Topics: {specific_topics}\n"
     prompt += f"Preferred Format: {preferred_format}\n"
+    prompt += f"Recent company news articles: If any of the favorite companies are mentioned, make sure to include clickable links to the latest news articles for those companies.\n"
     prompt += favorites_prompt
     
     
