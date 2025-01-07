@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const CareerAssistant = ({ loggedInUser }) => {
+const CareerAssistant = () => {
   const [inputs, setInputs] = useState({
     prompt: '',
     scope_of_analysis: [],
@@ -18,6 +18,8 @@ const CareerAssistant = ({ loggedInUser }) => {
   const [newsArticles, setNewsArticles] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [loggedInUser, setLoggedInUser] = useState(localStorage.getItem('user_id'));
+  const [authLoading, setAuthLoading] = useState(true);
 
   const fetchUserFavorites = async (userId) => {
     try {
@@ -33,7 +35,6 @@ const CareerAssistant = ({ loggedInUser }) => {
     }
   };
 
-  
   const fetchNewsArticles = async () => {
     const newsPromises = userFavorites.map(async (favorite) => {
       try {
@@ -61,9 +62,18 @@ const CareerAssistant = ({ loggedInUser }) => {
   };
 
   useEffect(() => {
+    
+    const userId = localStorage.getItem('user_id');
+    if (userId) {
+      setLoggedInUser(userId);
+    }
+    setAuthLoading(false);
+  }, []);
+
+  useEffect(() => {
     if (loggedInUser) {
       setLoading(true);
-      fetchUserFavorites(loggedInUser.id);
+      fetchUserFavorites(loggedInUser);
     }
   }, [loggedInUser]);
 
@@ -122,6 +132,10 @@ const CareerAssistant = ({ loggedInUser }) => {
       .replace(/^(####) (.*?)$/gm, '<h4>$2</h4>')
       .replace(/\n/g, '<br />');
   };
+
+  if (!loggedInUser) {
+    return <div>You must be logged in to use the Career Assistant.</div>;
+  }
 
   if (loading) {
     return <div>Loading...</div>;
