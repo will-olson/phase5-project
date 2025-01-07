@@ -58,6 +58,10 @@ def fetch_news_for_company(company_name, desired_article_count=5):
 @app.route('/career-assistant', methods=['POST'])
 def career_assistant():
     
+    # user_id = session.get('user_id')
+    # if not user_id:
+    #     return jsonify({"message": "User not logged in."}), 401
+
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     headers = {
         "Content-Type": "application/json",

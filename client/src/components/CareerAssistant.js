@@ -15,42 +15,40 @@ const CareerAssistant = ({ loggedInUser }) => {
   });
   const [responses, setResponses] = useState([]);
   const [userFavorites, setUserFavorites] = useState([]);
-  const [companies, setCompanies] = useState([]);
   const [newsArticles, setNewsArticles] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  
   const fetchUserFavorites = async (userId) => {
     try {
       const response = await axios.get(`http://localhost:5555/favorites?user_id=${userId}`);
-      setUserFavorites(response.data.favorites || []);
+      if (response.data && response.data.favorites) {
+        setUserFavorites(response.data.favorites);
+      } else {
+        setUserFavorites([]);
+      }
     } catch (error) {
       setError('Failed to load favorites');
       console.error('Error fetching user favorites:', error);
     }
   };
 
-  const fetchCompanies = async () => {
-    try {
-      const res = await axios.get('http://localhost:5555/companies');
-      setCompanies(res.data.companies || []);
-    } catch (error) {
-      setError('Failed to load companies');
-      console.error('Error fetching companies:', error);
-    }
-  };
-
   
   const fetchNewsArticles = async () => {
     const newsPromises = userFavorites.map(async (favorite) => {
-      const response = await axios.get(`http://localhost:5555/news-articles?company_id=${favorite.id}&timeFrame=${inputs.time_frame}`);
-      if (response.data && response.data.articles) {
-        return {
-          company_name: favorite.name,
-          articles: response.data.articles
-        };
+      try {
+        const response = await axios.get(`http://localhost:5555/news-articles?company_id=${favorite.id}&timeFrame=${inputs.time_frame}`);
+        if (response.data && response.data.articles) {
+          return {
+            company_name: favorite.name,
+            articles: response.data.articles,
+          };
+        }
+        return { company_name: favorite.name, articles: [] };
+      } catch (error) {
+        console.error('Error fetching news for', favorite.name, error);
+        return { company_name: favorite.name, articles: [] };
       }
-      return { company_name: favorite.name, articles: [] };
     });
 
     try {
@@ -62,48 +60,34 @@ const CareerAssistant = ({ loggedInUser }) => {
     }
   };
 
-  
   useEffect(() => {
     if (loggedInUser) {
+      setLoading(true);
       fetchUserFavorites(loggedInUser.id);
-      fetchCompanies();
     }
   }, [loggedInUser]);
 
-  
   useEffect(() => {
     if (userFavorites.length > 0) {
       fetchNewsArticles();
     }
+    setLoading(false);
   }, [userFavorites, inputs.time_frame]);
 
-  
   const handleSubmit = async () => {
     try {
-      const companiesInPrompt = companies.filter((company) =>
-        inputs.prompt.toLowerCase().includes(company.name.toLowerCase())
-      );
-  
-      let promptWithFavoriteMessage = inputs.prompt;
-      companiesInPrompt.forEach((companyInPrompt) => {
-        if (userFavorites.some((fav) => fav.id === companyInPrompt.id)) {
-          promptWithFavoriteMessage = `${inputs.prompt} - This is one of your favorite companies!`;
-        }
-      });
-  
       const payload = {
         ...inputs,
         user_favorites: userFavorites,
         news_articles: newsArticles,
-        prompt: promptWithFavoriteMessage,
       };
-  
+
       const res = await axios.post('http://localhost:5555/career-assistant', payload);
       const newResponse = res.data.response;
-  
+
       setResponses((prevResponses) => [
         ...prevResponses,
-        { question: promptWithFavoriteMessage, answer: newResponse },
+        { question: inputs.prompt, answer: newResponse },
       ]);
     } catch (error) {
       console.error('Error:', error.response ? error.response.data : error.message);
@@ -113,7 +97,6 @@ const CareerAssistant = ({ loggedInUser }) => {
       ]);
     }
   };
-  
 
   const handleInputChange = (e, field) => {
     const { value, type, checked } = e.target;
@@ -139,6 +122,10 @@ const CareerAssistant = ({ loggedInUser }) => {
       .replace(/^(####) (.*?)$/gm, '<h4>$2</h4>')
       .replace(/\n/g, '<br />');
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   if (error) {
     return <div className="error-message">{error}</div>;
