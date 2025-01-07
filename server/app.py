@@ -57,22 +57,28 @@ def fetch_news_for_company(company_name, desired_article_count=5):
 
 @app.route('/career-assistant', methods=['POST'])
 def career_assistant():
-    
-    # user_id = session.get('user_id')
-    # if not user_id:
-    #     return jsonify({"message": "User not logged in."}), 401
-
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-    }
-    
     data = request.get_json()
+    user_id = data.get('user_id')
     
-    print(f"Received data: {data}")
+    if not user_id:
+        return jsonify({"message": "User not logged in."}), 401
     
     
+    favorites = Favorites.query.filter_by(user_id=user_id).all()
+    favorite_companies = [{"company_name": fav.company.name, 
+                           "link": fav.company.link, 
+                           "category": fav.company.category.name if fav.company.category else None} 
+                          for fav in favorites]
+
+    
+    favorites_prompt = ""
+    if favorite_companies:
+        favorites_prompt = "User's favorite companies:\n" + "\n".join(
+            [f"- {company['company_name']} (Category: {company['category']})" for company in favorite_companies]
+        ) + "\n"
+    
+    
+    career_question = data.get('prompt', '')  
     scope_of_analysis = data.get('scope_of_analysis', [])
     sentiment_tone = data.get('sentiment_tone', 'Neutral')
     level_of_detail = data.get('level_of_detail', 'Brief')
@@ -82,68 +88,63 @@ def career_assistant():
     specific_topics = data.get('specific_topics', '')
     preferred_format = data.get('preferred_format', 'Bullet Points')
     target = data.get('target', 'Company or Industry')
-    career_question = data.get('prompt', '')  
-
-   
-    prompt = f"Provide a personalized career analysis based on the following preferences:\n"
 
     
+    prompt = f"Provide a personalized career analysis based on the following preferences:\n"
+    
     if career_question:
-        prompt += f"Career Inquiry: {career_question}\n"  
+        prompt += f"Career Inquiry: {career_question}\n"
     else:
-        prompt += f"Career Inquiry: General career insights\n"  
-
-   
+        prompt += f"Career Inquiry: General career insights\n"
+    
     if scope_of_analysis:
         prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
     else:
-        prompt += f"Scope of Analysis: Company-Specific Risks, Growth Opportunities, Innovation & R&D\n"  
-
+        prompt += f"Scope of Analysis: Company-Specific Risks, Growth Opportunities, Innovation & R&D\n"
     
     prompt += f"Sentiment Tone: {sentiment_tone}\n"
-
-    
     prompt += f"Level of Detail: {level_of_detail}\n"
-
-   
+    
     if preferred_sources:
         prompt += f"Preferred News Sources: {', '.join(preferred_sources)}\n"
-
     
     prompt += f"Time Frame: {time_frame}\n"
-
     
     if industry_focus:
         prompt += f"Industry Focus: {', '.join(industry_focus)}\n"
-
     
     if specific_topics:
         prompt += f"Specific Topics: {specific_topics}\n"
-
     
     prompt += f"Preferred Format: {preferred_format}\n"
 
     
+    prompt += favorites_prompt
+    
+    
     print(f"Generated prompt: {prompt}")
+    
     
     api_data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7
     }
+
     try:
         
-        response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=api_data)
-        response.raise_for_status() 
+        response = requests.post("https://api.openai.com/v1/chat/completions", 
+                                 headers={"Content-Type": "application/json", 
+                                          "Authorization": f"Bearer {OPENAI_API_KEY}"}, 
+                                 json=api_data)
+        response.raise_for_status()  
+        
         
         api_response = response.json()
-        print(f"OpenAI API response: {api_response}")
-        
         ai_response = api_response['choices'][0]['message']['content'].strip()
-        
         return jsonify({"response": ai_response}), 200
+
     except requests.exceptions.RequestException as e:
-        
         print(f"Error during OpenAI request: {e}")
         return jsonify({"error": str(e)}), 500
     

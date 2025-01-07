@@ -62,7 +62,6 @@ const CareerAssistant = () => {
   };
 
   useEffect(() => {
-    
     const userId = localStorage.getItem('user_id');
     if (userId) {
       setLoggedInUser(userId);
@@ -77,6 +76,7 @@ const CareerAssistant = () => {
     }
   }, [loggedInUser]);
 
+  
   useEffect(() => {
     if (userFavorites.length > 0) {
       fetchNewsArticles();
@@ -90,6 +90,7 @@ const CareerAssistant = () => {
         ...inputs,
         user_favorites: userFavorites,
         news_articles: newsArticles,
+        user_id: loggedInUser,
       };
 
       const res = await axios.post('http://localhost:5555/career-assistant', payload);
@@ -137,7 +138,7 @@ const CareerAssistant = () => {
     return <div>You must be logged in to use the Career Assistant.</div>;
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return <div>Loading...</div>;
   }
 
