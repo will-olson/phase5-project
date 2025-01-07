@@ -132,25 +132,22 @@ const CareerAssistant = () => {
 
   const formatResponse = (response) => {
     
-    response = response.replace(/(https?:\/\/[^\s]+(?:[^\s.<>,;()]*))/g, (match) => {
-      
-      let cleanMatch = match.replace(/[.,;?!\)]*$/, '');
-      
-      return `<a href="${match}" target="_blank">${cleanMatch}</a>`;
+    response = response.replace(/(https?:\/\/[^\s]+)(?=\s|$|[.,;?!)(]*)(?=\b)/g, (match) => {
+        return `<a href="${match}" target="_blank">${match}</a>`;
     });
-  
+
     
-    response = response
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\* (.*?)\n/g, '<ul><li>$1</li></ul>')
-      .replace(/^(#) (.*?)$/gm, '<h1>$2</h1>')
-      .replace(/^(##) (.*?)$/gm, '<h2>$2</h2>')
-      .replace(/^(###) (.*?)$/gm, '<h3>$2</h3>')
-      .replace(/^(####) (.*?)$/gm, '<h4>$2</h4>')
-      .replace(/\n/g, '<br />');
-  
+    response = response.replace(/\* (.*?)\n/g, '<ul><li>$1</li></ul>');
+    response = response.replace(/^(#) (.*?)$/gm, '<h1>$2</h1>');
+    response = response.replace(/^(##) (.*?)$/gm, '<h2>$2</h2>');
+    response = response.replace(/^(###) (.*?)$/gm, '<h3>$2</h3>');
+    response = response.replace(/^(####) (.*?)$/gm, '<h4>$2</h4>');
+    response = response.replace(/\n/g, '<br />');
+
     return response;
-  };
+};
+
+
   
   if (!loggedInUser) {
     return <div>You must be logged in to use the Career Assistant.</div>;

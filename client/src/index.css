@@ -602,3 +602,13 @@ input[type="radio"] {
       width: 100%;
   }
 }
+
+a {
+  color: #0077cc; 
+  text-decoration: none; 
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
