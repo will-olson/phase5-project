@@ -548,18 +548,32 @@ body:not(.dark-mode) .user-info h4 {
 
 .chat-window {
   border: 1px solid #ddd;
-  padding: 15px;
+  padding: 10px;
   min-height: 300px;
-  background-color: #f7f7f7;
-  border-radius: 8px;
+  max-height: 500px;
   overflow-y: auto;
+  background-color: #f9f9f9;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  color: #333;
 }
 
 .chat-window p {
-  color: #333;
-  font-size: 1rem;
-  line-height: 1.6;
-  word-wrap: break-word;
+  margin: 0;
+  padding: 5px 0;
+}
+
+.chat-window ul {
+  padding-left: 20px;
+}
+
+.chat-window li {
+  list-style-type: disc;
+  margin-bottom: 5px;
+}
+
+.chat-window strong {
+  font-weight: bold;
 }
 
 

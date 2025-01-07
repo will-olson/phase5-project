@@ -13,14 +13,14 @@ const CareerAssistant = () => {
         specific_topics: '',
         preferred_format: 'Bullet Points',
     });
-    const [responses, setResponses] = useState([]);  // Store the conversation history
+    const [responses, setResponses] = useState([]);
 
     const handleSubmit = async () => {
         try {
             const res = await axios.post('http://localhost:5555/career-assistant', inputs);
             const newResponse = res.data.response;
 
-            // Add the new response to the conversation history
+            
             setResponses(prevResponses => [
                 ...prevResponses,
                 { question: inputs.prompt, answer: newResponse }
@@ -47,6 +47,25 @@ const CareerAssistant = () => {
             setInputs(prevInputs => ({ ...prevInputs, [field]: value }));
         }
     };
+
+    const formatResponse = (response) => {
+        return response
+        
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        
+        
+        .replace(/\* (.*?)\n/g, '<ul><li>$1</li></ul>')
+        
+        
+        .replace(/^(#) (.*?)$/gm, '<h1>$2</h1>')   
+        .replace(/^(##) (.*?)$/gm, '<h2>$2</h2>')  
+        .replace(/^(###) (.*?)$/gm, '<h3>$2</h3>') 
+        .replace(/^(####) (.*?)$/gm, '<h4>$2</h4>')
+    
+        
+        .replace(/\n/g, '<br />');
+    };
+    
 
     return (
         <div className="career-assistant-container" style={{ display: 'flex' }}>
@@ -133,7 +152,7 @@ const CareerAssistant = () => {
                 <div>
                     <label>Time Frame</label>
                     <div>
-                        {['Last 7 days', 'Last 30 days', 'Last 6 months', 'Custom Range'].map(option => (
+                        {['Last 7 days', 'Last 30 days', 'Last 6 months'].map(option => (
                             <label key={option}>
                                 <input
                                     type="radio"
@@ -204,7 +223,10 @@ const CareerAssistant = () => {
                     {responses.map((entry, index) => (
                         <div key={index}>
                             <strong>Question: </strong><p>{entry.question}</p>
-                            <strong>Response: </strong><p>{entry.answer}</p>
+                            <strong>Response: </strong>
+                            <div 
+                                dangerouslySetInnerHTML={{ __html: formatResponse(entry.answer) }} 
+                            />
                             <hr />
                         </div>
                     ))}
