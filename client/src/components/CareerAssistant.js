@@ -38,7 +38,8 @@ const CareerAssistant = () => {
   const fetchNewsArticles = async () => {
     const newsPromises = userFavorites.map(async (favorite) => {
       try {
-        const response = await axios.get(`http://localhost:5555/news-articles?company_id=${favorite.id}&timeFrame=${inputs.time_frame}`);
+        
+        const response = await axios.get(`http://localhost:5555/news/${favorite.id}`);
         if (response.data && response.data.articles) {
           return {
             company_name: favorite.name,
@@ -51,7 +52,7 @@ const CareerAssistant = () => {
         return { company_name: favorite.name, articles: [] };
       }
     });
-
+  
     try {
       const allNews = await Promise.all(newsPromises);
       setNewsArticles(allNews);
@@ -60,6 +61,7 @@ const CareerAssistant = () => {
       console.error('Error fetching news articles:', error);
     }
   };
+  
 
   useEffect(() => {
     const userId = localStorage.getItem('user_id');
@@ -131,7 +133,11 @@ const CareerAssistant = () => {
       .replace(/^(##) (.*?)$/gm, '<h2>$2</h2>')
       .replace(/^(###) (.*?)$/gm, '<h3>$2</h3>')
       .replace(/^(####) (.*?)$/gm, '<h4>$2</h4>')
-      .replace(/\n/g, '<br />');
+      .replace(/\n/g, '<br />')
+      .replace(
+        /(https?:\/\/[^\s]+)/g,
+        '<a href="$1" target="_blank">$1</a>' 
+      );
   };
 
   if (!loggedInUser) {

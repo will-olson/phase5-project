@@ -54,31 +54,66 @@ def fetch_news_for_company(company_name, desired_article_count=5):
         return [article for article in articles if article['title'] != '[Removed]'][:desired_article_count]
     else:
         return []
+import logging
+
+
+logging.basicConfig(level=logging.DEBUG)
 
 @app.route('/career-assistant', methods=['POST'])
 def career_assistant():
     data = request.get_json()
+    logging.debug(f"Received data: {data}") 
+    
     user_id = data.get('user_id')
     
     if not user_id:
+        logging.warning("User not logged in.")
         return jsonify({"message": "User not logged in."}), 401
     
     
     favorites = Favorites.query.filter_by(user_id=user_id).all()
+    logging.debug(f"Fetched favorites for user {user_id}: {favorites}")
+    
     favorite_companies = [{"company_name": fav.company.name, 
                            "link": fav.company.link, 
-                           "category": fav.company.category.name if fav.company.category else None} 
-                          for fav in favorites]
+                           "category": fav.company.category.name if fav.company.category else None,
+                           "id": fav.company.id} for fav in favorites]
+    
+    
+    news_details = []
+    for company in favorite_companies:
+        articles = fetch_news_for_company(company['company_name'], desired_article_count=3)
+        logging.debug(f"Fetched articles for company {company['company_name']}: {articles}")
+        news_details.append({
+            "company_name": company['company_name'],
+            "news_articles": [{"title": article['title'], "url": article['url']} for article in articles]
+        })
 
     
     favorites_prompt = ""
     if favorite_companies:
         favorites_prompt = "User's favorite companies:\n" + "\n".join(
             [f"- {company['company_name']} (Category: {company['category']})" for company in favorite_companies]
+        ) + "\n\n"
+        favorites_prompt += "Recent news articles:\n" + "\n".join(
+            [f"{news['company_name']}:\n" + "\n".join([f"  - {article['title']} ({article['url']})" for article in news['news_articles']]) for news in news_details]
         ) + "\n"
     
     
+    logging.debug(f"Generated AI prompt: {favorites_prompt}")
+    
+    
     career_question = data.get('prompt', '')  
+    logging.debug(f"Career Question: {career_question}")
+    
+    
+    prompt = f"Provide a personalized career analysis based on the following preferences:\n"
+    if career_question:
+        prompt += f"Career Inquiry: {career_question}\n"
+    else:
+        prompt += f"Career Inquiry: General career insights\n"
+    
+    
     scope_of_analysis = data.get('scope_of_analysis', [])
     sentiment_tone = data.get('sentiment_tone', 'Neutral')
     level_of_detail = data.get('level_of_detail', 'Brief')
@@ -87,43 +122,23 @@ def career_assistant():
     industry_focus = data.get('industry_focus', [])
     specific_topics = data.get('specific_topics', '')
     preferred_format = data.get('preferred_format', 'Bullet Points')
-    target = data.get('target', 'Company or Industry')
-
     
-    prompt = f"Provide a personalized career analysis based on the following preferences:\n"
-    
-    if career_question:
-        prompt += f"Career Inquiry: {career_question}\n"
-    else:
-        prompt += f"Career Inquiry: General career insights\n"
-    
-    if scope_of_analysis:
-        prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
-    else:
-        prompt += f"Scope of Analysis: Company-Specific Risks, Growth Opportunities, Innovation & R&D\n"
-    
+    prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
     prompt += f"Sentiment Tone: {sentiment_tone}\n"
     prompt += f"Level of Detail: {level_of_detail}\n"
-    
     if preferred_sources:
         prompt += f"Preferred News Sources: {', '.join(preferred_sources)}\n"
-    
     prompt += f"Time Frame: {time_frame}\n"
-    
     if industry_focus:
         prompt += f"Industry Focus: {', '.join(industry_focus)}\n"
-    
     if specific_topics:
         prompt += f"Specific Topics: {specific_topics}\n"
-    
     prompt += f"Preferred Format: {preferred_format}\n"
-
-    
     prompt += favorites_prompt
     
     
-    print(f"Generated prompt: {prompt}")
-    
+    logging.debug(f"Final AI prompt: {prompt}")
+
     
     api_data = {
         "model": "gpt-4o-mini",
@@ -132,21 +147,22 @@ def career_assistant():
     }
 
     try:
-        
         response = requests.post("https://api.openai.com/v1/chat/completions", 
                                  headers={"Content-Type": "application/json", 
                                           "Authorization": f"Bearer {OPENAI_API_KEY}"}, 
                                  json=api_data)
-        response.raise_for_status()  
+        response.raise_for_status()
         
         
         api_response = response.json()
+        logging.debug(f"API response: {api_response}")
+        
         ai_response = api_response['choices'][0]['message']['content'].strip()
         return jsonify({"response": ai_response}), 200
-
     except requests.exceptions.RequestException as e:
-        print(f"Error during OpenAI request: {e}")
+        logging.error(f"Error during OpenAI request: {e}")
         return jsonify({"error": str(e)}), 500
+
     
 def create_app():
     return app
