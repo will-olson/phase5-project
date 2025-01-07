@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-
 const CareerAssistant = () => {
     const [inputs, setInputs] = useState({
         prompt: '',
@@ -14,18 +13,26 @@ const CareerAssistant = () => {
         specific_topics: '',
         preferred_format: 'Bullet Points',
     });
-    const [response, setResponse] = useState('');
+    const [responses, setResponses] = useState([]);  // Store the conversation history
 
     const handleSubmit = async () => {
         try {
             const res = await axios.post('http://localhost:5555/career-assistant', inputs);
-            setResponse(res.data.response);
+            const newResponse = res.data.response;
+
+            // Add the new response to the conversation history
+            setResponses(prevResponses => [
+                ...prevResponses,
+                { question: inputs.prompt, answer: newResponse }
+            ]);
         } catch (error) {
             console.error("Error:", error.response ? error.response.data : error.message);
-            setResponse('An error occurred. Please try again.');
+            setResponses(prevResponses => [
+                ...prevResponses,
+                { question: inputs.prompt, answer: 'An error occurred. Please try again.' }
+            ]);
         }
     };
-    
 
     const handleInputChange = (e, field) => {
         const { value, type, checked } = e.target;
@@ -194,7 +201,13 @@ const CareerAssistant = () => {
             <div className="output-section" style={{ width: '60%', padding: '10px', borderLeft: '1px solid #ccc' }}>
                 <h3>AI's Response</h3>
                 <div className="chat-window" style={{ border: '1px solid #ddd', padding: '10px', minHeight: '300px' }}>
-                    <p>{response}</p>
+                    {responses.map((entry, index) => (
+                        <div key={index}>
+                            <strong>Question: </strong><p>{entry.question}</p>
+                            <strong>Response: </strong><p>{entry.answer}</p>
+                            <hr />
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

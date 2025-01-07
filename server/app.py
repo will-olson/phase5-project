@@ -68,6 +68,7 @@ def career_assistant():
     
     print(f"Received data: {data}")
     
+    
     scope_of_analysis = data.get('scope_of_analysis', [])
     sentiment_tone = data.get('sentiment_tone', 'Neutral')
     level_of_detail = data.get('level_of_detail', 'Brief')
@@ -76,17 +77,48 @@ def career_assistant():
     industry_focus = data.get('industry_focus', [])
     specific_topics = data.get('specific_topics', '')
     preferred_format = data.get('preferred_format', 'Bullet Points')
-    
+    target = data.get('target', 'Company or Industry')
+    career_question = data.get('prompt', '')  
+
+   
     prompt = f"Provide a personalized career analysis based on the following preferences:\n"
-    prompt += f"Target: {data.get('target', 'Company or Industry')}\n"
-    prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
+
+    
+    if career_question:
+        prompt += f"Career Inquiry: {career_question}\n"  
+    else:
+        prompt += f"Career Inquiry: General career insights\n"  
+
+   
+    if scope_of_analysis:
+        prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
+    else:
+        prompt += f"Scope of Analysis: Company-Specific Risks, Growth Opportunities, Innovation & R&D\n"  
+
+    
     prompt += f"Sentiment Tone: {sentiment_tone}\n"
+
+    
     prompt += f"Level of Detail: {level_of_detail}\n"
-    prompt += f"Preferred News Sources: {', '.join(preferred_sources)}\n"
+
+   
+    if preferred_sources:
+        prompt += f"Preferred News Sources: {', '.join(preferred_sources)}\n"
+
+    
     prompt += f"Time Frame: {time_frame}\n"
-    prompt += f"Industry Focus: {', '.join(industry_focus)}\n"
-    prompt += f"Specific Topics: {specific_topics}\n"
+
+    
+    if industry_focus:
+        prompt += f"Industry Focus: {', '.join(industry_focus)}\n"
+
+    
+    if specific_topics:
+        prompt += f"Specific Topics: {specific_topics}\n"
+
+    
     prompt += f"Preferred Format: {preferred_format}\n"
+
     
     print(f"Generated prompt: {prompt}")
     
