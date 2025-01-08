@@ -41,24 +41,24 @@ function DataPage() {
 
     const fetchTopCountries = async () => {
         try {
-            // Fetch list of all countries
+            
             const countriesResponse = await axios.get('https://api.worldbank.org/v2/country?format=json');
             
-            // Extract relevant country data from the response
+            
             const countries = countriesResponse.data[1].map(country => ({
-                id: country.id, // ISO3 code, e.g., "BRA" for Brazil
-                name: country.name, // Country name
-                region: country.region.value, // Region name (e.g., "Latin America & Caribbean")
-                incomeLevel: country.incomeLevel.value, // Income level (e.g., "Upper middle income")
-                capitalCity: country.capitalCity, // Capital city
-                longitude: country.longitude, // Longitude
-                latitude: country.latitude, // Latitude
+                id: country.id,
+                name: country.name,
+                region: country.region.value,
+                incomeLevel: country.incomeLevel.value,
+                capitalCity: country.capitalCity,
+                longitude: country.longitude,
+                latitude: country.latitude,
             }));
 
-            // Shuffle countries array
+            
             const shuffledCountries = countries.sort(() => Math.random() - 0.5);
 
-            // Set the top 5 countries after shuffling
+            
             setTopCountries(shuffledCountries.slice(0, 5));
 
         } catch (err) {
@@ -75,13 +75,44 @@ function DataPage() {
         }
     };
 
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
+    const searchSymbol = async (companyName) => {
+        try {
+            const response = await axios.get(`http://127.0.0.1:5555/symbol-search?company_name=${companyName}`);
+   
+            if (response.data && response.data.length > 0) {
+                setSymbolMatches(response.data);
+                setError('');
+            } else {
+                setError(response.data.error || 'No symbols found for the company');
+            }
+        } catch (err) {
+            setError(`Error searching for company symbol: ${err.response?.data?.error || err.message}`);
+        }
     };
+   
+    const [symbolMatches, setSymbolMatches] = useState([]);
+
+    
+
+    const handleSearchChange = (event) => {
+        const query = event.target.value.trim();
+        setSearchQuery(query);
+    
+        if (query.length > 2) {
+            searchSymbol(query);
+        } else {
+            setSymbolMatches([]);
+        }
+    };
+    
+    
 
     const handleSelectChange = (event) => {
-        setSelectedSymbol(event.target.value);
-    };
+        const selectedSymbol = event.target.value;
+        setSelectedSymbol(selectedSymbol);
+        fetchApiData(selectedSymbol);
+   };
+   
 
     const fetchApiData = async (companySymbol) => {
         try {

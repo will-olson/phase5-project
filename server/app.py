@@ -232,6 +232,38 @@ def get_top_stocks():
             stocks_data.append(stock_data)
     
     return jsonify(stocks_data), 200
+
+@app.route('/symbol-search', methods=['GET'])
+def symbol_search():
+    company_name = request.args.get('company_name')
+    if company_name:
+        try:
+            response = requests.get(
+                'https://www.alphavantage.co/query',
+                params={
+                    'function': 'SYMBOL_SEARCH',
+                    'keywords': company_name,
+                    'apikey': ALPHA_VANTAGE_API_KEY
+                }
+            )
+
+            if response.status_code == 200:
+                data = response.json()
+                if 'bestMatches' in data and data['bestMatches']:
+                    
+                    matches = [
+                        {'symbol': match['1. symbol'], 'name': match['2. name']}
+                        for match in data['bestMatches']
+                    ]
+                    return jsonify(matches), 200
+                return jsonify({'error': 'No matching company found'}), 404
+            return jsonify({'error': 'Alpha Vantage API request failed'}), 500
+        except requests.exceptions.RequestException as e:
+            return jsonify({'error': f'Error fetching data: {str(e)}'}), 500
+    return jsonify({'error': 'Company name is required'}), 400
+
+
+
     
 def create_app():
     return app
