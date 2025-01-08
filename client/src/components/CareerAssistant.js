@@ -165,11 +165,11 @@ const CareerAssistant = () => {
     <div className="career-assistant-container">
     {/* Left Side: Personalization Inputs */}
     <div className="input-section">
-        <h3>Personalize Your Career Analysis</h3>
+        <h3>Personalize Your Business Analysis</h3>
 
         {/* Question Prompt Input */}
         <div>
-            <label htmlFor="prompt">Ask Your Career Question:</label>
+            <label htmlFor="prompt">Prompt:</label>
             <textarea
                 id="prompt"
                 value={inputs.prompt}
@@ -310,22 +310,51 @@ const CareerAssistant = () => {
         </div>
 
         {/* Submit Button */}
-        <button className="submit-button" onClick={handleSubmit}>Get Career Advice</button>
+        <button className="submit-button" onClick={handleSubmit}>Ask Career Assistant</button>
     </div>
 
     {/* Right Side: AI Chat Window */}
-    <div className="output-section">
-        <h3>AI's Response</h3>
-        <div className="chat-window">
-            {responses.map((response, index) => (
-                <div key={index}>
-                    <div><strong>Q:</strong> {response.question}</div>
-                    <div dangerouslySetInnerHTML={{ __html: formatResponse(response.answer) }} />
-                </div>
-            ))}
-        </div>
-    </div>
+{/* Right Side: AI Chat Window */}
+<div className="output-section">
+      {/* Page Overview and Directions Tile */}
+      <div className="header-tile">
+  <h4>Welcome to the Career Assistant</h4>
 </div>
+
+<div className="overview-tile">
+  <p className="highlight">
+    Use this tool to get personalized career insights and business analysis based on your questions and preferences. 
+    Here’s how to get started:
+  </p>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Use the left panel to input your career and business analysis questions.
+  </div>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Choose the scope, sentiment tone, level of detail, response format, and more to inform the response.
+  </div>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Click "Ask Career Assistant" to see your results below.
+  </div>
+  <p className="highlight italic-text">
+    Remember, Career Assistant knows your favorite companies. It can provide strategic analyses across this set of companies, evaluate relative investment opporunities, recommend portolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
+  </p>
+</div>
+
+
+
+      <h3>Career Assistant's Response</h3>
+      <div className="chat-window">
+        {responses.map((response, index) => (
+          <div key={index}>
+            <div>
+              <strong>Q:</strong> {response.question}
+            </div>
+            <div dangerouslySetInnerHTML={{ __html: formatResponse(response.answer) }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
 );
 
 };

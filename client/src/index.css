@@ -549,6 +549,7 @@ body:not(.dark-mode) .user-info h4 {
 .chat-window {
   border: 1px solid #ddd;
   padding: 10px;
+  height: calc(100vh - 150px);
   min-height: 300px;
   max-height: 500px;
   overflow-y: auto;
@@ -710,7 +711,7 @@ a:hover {
     grid-template-columns: 1fr;
   }
 }
-/* Button Styling */
+
 .submit-button {
   position: fixed;
   bottom: 0; 
@@ -734,4 +735,205 @@ a:hover {
 
 .submit-button:hover {
   background-color: #0056b3;
+}
+
+.header-tile {
+  background-color: #007BFF;
+  color: #fff;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 1.6em;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+.overview-tile {
+  background-color: #f4f6f8;
+  border: 1px solid #d1d9e6;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 10px; 
+  color: #333;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+
+.overview-tile .highlight {
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 16px;
+  text-align: center;
+  width: 100%;
+}
+
+
+
+.custom-list-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 1em;
+}
+
+
+.custom-list-item .icon {
+  margin-right: 12px;
+  color: #007BFF;
+  font-size: 1.5em;
+}
+
+
+.overview-tile .italic-text {
+  font-style: italic;
+  font-weight: normal;
+}
+
+
+body.dark-mode .overview-tile .italic-text {
+  font-style: italic;
+  font-weight: normal;
+  color: var(--dark-color-text);
+}
+
+
+
+body.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+
+body.dark-mode .career-assistant-container {
+  background-color: var(--dark-color-background);
+}
+
+
+body.dark-mode .input-section {
+  background-color: var(--dark-content-background);
+  color: var(--dark-color-text);
+  border: 1px solid #444;
+}
+
+body.dark-mode .input-section h3,
+body.dark-mode .input-section label {
+  color: var(--dark-color-text);
+}
+
+body.dark-mode .input-section textarea,
+body.dark-mode .input-section input[type="text"],
+body.dark-mode .input-section select,
+body.dark-mode .input-section button {
+  background-color: var(--dark-content-background);
+  color: var(--dark-color-text);
+  border: 1px solid #444;
+}
+
+body.dark-mode .input-section button {
+  background-color: var(--dark-color-link);
+}
+
+
+body.dark-mode .input-section button:hover {
+  background-color: var(--dark-color-link-hover);
+}
+
+
+body.dark-mode .output-section {
+  background-color: var(--dark-content-background);
+  color: var(--dark-color-text);
+  border-left: 1px solid #444;
+}
+
+body.dark-mode .output-section h3 {
+  color: var(--dark-color-text);
+}
+
+
+body.dark-mode .chat-window {
+  background-color: var(--dark-content-background);
+  color: var(--dark-color-text);
+  border: 1px solid #444;
+}
+
+body.dark-mode .chat-window p,
+body.dark-mode .chat-window li {
+  color: var(--dark-color-text);
+}
+
+body.dark-mode .chat-window strong {
+  color: var(--dark-color-link);
+}
+
+body.dark-mode .chat-window a {
+  color: var(--dark-color-link);
+}
+
+body.dark-mode .chat-window a:hover {
+  color: var(--dark-color-link-hover);
+}
+
+
+body.dark-mode .prompt-criteria {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+body.dark-mode .prompt-criteria label {
+  color: #e0e0e0;
+}
+
+body.dark-mode .prompt-criteria input[type="checkbox"] {
+  background-color: #444;
+  border: 1px solid #555;
+}
+
+
+body.dark-mode .header-tile {
+  background-color: #1e1e1e;
+  color: #e0e0e0;
+}
+
+body.dark-mode .header-tile h4 {
+  color: #e0e0e0;
+}
+
+
+body.dark-mode .overview-tile {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
+body.dark-mode .overview-tile .highlight {
+  background-color: #444;
+  color: #e0e0e0
+}
+
+body.dark-mode .custom-list-item {
+  background-color: #444;
+  color: #e0e0e0;
+}
+
+body.dark-mode .custom-list-item .icon {
+  color: #007BFF;
+}
+
+body.dark-mode .custom-list-item {
+  margin-bottom: 10px;
+}
+
+body.dark-mode .custom-list-item span.icon {
+  margin-right: 5px;
+}
+
+
+body.dark-mode .prompt-criteria input[type="checkbox"]:focus,
+body.dark-mode .custom-list-item:hover {
+  background-color: #555;
 }
