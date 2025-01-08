@@ -612,3 +612,126 @@ a:hover {
   text-decoration: underline;
 }
 
+.prompt-criteria {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+
+.prompt-criteria label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+
+
+.prompt-criteria input,
+.prompt-criteria select {
+  padding: 8px;
+  margin-top: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 100%;
+}
+
+
+.prompt-criteria div {
+  margin-top: 8px;
+}
+
+
+.prompt-criteria div input {
+  width: auto;
+  margin-right: 10px;
+}
+
+
+.prompt-criteria .checkbox-group,
+.prompt-criteria .radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.prompt-criteria .checkbox-group label,
+.prompt-criteria .radio-group label {
+  margin-bottom: 10px;
+}
+
+
+.input-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.input-section button {
+  background-color: #007bff;
+  color: #fff;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%; 
+  margin-top: 10px;
+}
+
+.input-section button:hover {
+  background-color: #0056b3;
+}
+
+
+.input-section .prompt-criteria {
+  grid-column: span 1; 
+}
+
+.input-section .prompt-criteria label {
+  margin-bottom: 5px;
+}
+
+
+.input-section .prompt-criteria.checkbox-group,
+.input-section .prompt-criteria.radio-group {
+  display: flex;
+  justify-content: space-between; 
+}
+
+.input-section .prompt-criteria select {
+  width: auto; 
+  margin-right: 10px;
+}
+
+
+@media (max-width: 768px) {
+  .input-section {
+    grid-template-columns: 1fr;
+  }
+}
+/* Button Styling */
+.submit-button {
+  position: fixed;
+  bottom: 0; 
+  left: 0;
+  height: 7%;
+  width: 100%;
+  padding: 15px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  z-index: 10;
+  box-sizing: border-box;
+  margin: 0;
+  transform: translateY(20px);
+  
+}
+
+
+.submit-button:hover {
+  background-color: #0056b3;
+}

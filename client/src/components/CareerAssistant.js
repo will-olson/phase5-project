@@ -88,7 +88,7 @@ const CareerAssistant = () => {
 
   const handleSubmit = async () => {
     try {
-      // Prepare the dynamic list of company names and links
+      
       const companyNames = userFavorites.map(favorite => favorite.name).join(', ');
   
       const payload = {
@@ -161,173 +161,173 @@ const CareerAssistant = () => {
     return <div className="error-message">{error}</div>;
   }
 
-    return (
-        <div className="career-assistant-container" style={{ display: 'flex' }}>
-            {/* Left Side: Personalization Inputs */}
-            <div className="input-section" style={{ width: '40%', padding: '10px' }}>
-                <h3>Personalize Your Career Analysis</h3>
+  return (
+    <div className="career-assistant-container">
+    {/* Left Side: Personalization Inputs */}
+    <div className="input-section">
+        <h3>Personalize Your Career Analysis</h3>
 
-                {/* Question Prompt Input */}
-                <div>
-                    <label htmlFor="prompt">Ask Your Career Question:</label>
-                    <textarea
-                        id="prompt"
-                        value={inputs.prompt}
-                        onChange={(e) => setInputs({ ...inputs, prompt: e.target.value })}
-                        rows="4"
-                        placeholder="Enter your question here"
-                        style={{ width: '100%' }}
-                    />
-                </div>
+        {/* Question Prompt Input */}
+        <div>
+            <label htmlFor="prompt">Ask Your Career Question:</label>
+            <textarea
+                id="prompt"
+                value={inputs.prompt}
+                onChange={(e) => setInputs({ ...inputs, prompt: e.target.value })}
+                rows="4"
+                placeholder="Enter your question here"
+            />
+        </div>
 
-                {/* Scope of Analysis (Checkboxes) */}
-                <div>
-                    <label>Scope of Analysis</label>
-                    <div>
-                        {['Market Trends', 'Company-Specific Risks', 'Growth Opportunities', 'Competitor Comparison', 'Innovation & R&D'].map((option) => (
-                            <label key={option}>
-                                <input
-                                    type="checkbox"
-                                    value={option}
-                                    checked={inputs.scope_of_analysis.includes(option)}
-                                    onChange={(e) => handleInputChange(e, 'scope_of_analysis')}
-                                />
-                                {option}
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Sentiment Tone (Dropdown) */}
-                <div>
-                    <label>Sentiment Tone</label>
-                    <select
-                        value={inputs.sentiment_tone}
-                        onChange={(e) => handleInputChange(e, 'sentiment_tone')}
-                    >
-                        {['Neutral', 'Optimistic', 'Critical', 'Balanced'].map((option) => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Level of Detail (Dropdown) */}
-                <div>
-                    <label>Level of Detail</label>
-                    <select
-                        value={inputs.level_of_detail}
-                        onChange={(e) => handleInputChange(e, 'level_of_detail')}
-                    >
-                        {['Brief (2-3 bullet points)', 'Moderate (Short paragraph)', 'Comprehensive (Detailed analysis)'].map((option) => (
-                            <option key={option} value={option}>
-                                {option}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* Preferred News Sources */}
-                <div>
-                    <label>Preferred News Sources</label>
-                    <div>
-                        {['Reuters', 'Bloomberg', 'The Verge', 'TechCrunch', 'Local News Sources'].map((option) => (
-                            <label key={option}>
-                                <input
-                                    type="checkbox"
-                                    value={option}
-                                    checked={inputs.preferred_sources.includes(option)}
-                                    onChange={(e) => handleInputChange(e, 'preferred_sources')}
-                                />
-                                {option}
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Time Frame */}
-                <div>
-                    <label>Time Frame</label>
-                    <div>
-                        {['Last 7 days', 'Last 30 days', 'Last 6 months'].map((option) => (
-                            <label key={option}>
-                                <input
-                                    type="radio"
-                                    value={option}
-                                    checked={inputs.time_frame === option}
-                                    onChange={(e) => handleInputChange(e, 'time_frame')}
-                                />
-                                {option}
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Industry Focus */}
-                <div>
-                    <label>Industry Focus</label>
-                    <div>
-                        {['Technology', 'Finance', 'Healthcare', 'Retail'].map((option) => (
-                            <label key={option}>
-                                <input
-                                    type="checkbox"
-                                    value={option}
-                                    checked={inputs.industry_focus.includes(option)}
-                                    onChange={(e) => handleInputChange(e, 'industry_focus')}
-                                />
-                                {option}
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Specific Topics */}
-                <div>
-                    <label>Specific Topics</label>
-                    <input
-                        type="text"
-                        value={inputs.specific_topics}
-                        onChange={(e) => handleInputChange(e, 'specific_topics')}
-                    />
-                </div>
-
-                {/* Preferred Format */}
-                <div>
-                    <label>Preferred Format</label>
-                    <div>
-                        {['Bullet Points', 'Short Summary', 'Detailed Report'].map((option) => (
-                            <label key={option}>
-                                <input
-                                    type="radio"
-                                    value={option}
-                                    checked={inputs.preferred_format === option}
-                                    onChange={(e) => handleInputChange(e, 'preferred_format')}
-                                />
-                                {option}
-                            </label>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Submit Button */}
-                <button onClick={handleSubmit}>Get Career Advice</button>
-            </div>
-
-            {/* Right Side: AI Chat Window */}
-            <div className="output-section" style={{ width: '60%', padding: '10px', borderLeft: '1px solid #ccc' }}>
-                <h3>AI's Response</h3>
-                <div className="chat-window" style={{ border: '1px solid #ccc', padding: '10px' }}>
-                    {responses.map((response, index) => (
-                        <div key={index}>
-                            <div><strong>Q:</strong> {response.question}</div>
-                            <div dangerouslySetInnerHTML={{ __html: formatResponse(response.answer) }} />
-                        </div>
-                    ))}
-                </div>
+        {/* Scope of Analysis (Checkboxes) */}
+        <div className="prompt-criteria">
+            <label>Scope of Analysis</label>
+            <div>
+                {['Market Trends', 'Company-Specific Risks', 'Growth Opportunities', 'Competitor Comparison', 'Innovation & R&D'].map((option) => (
+                    <label key={option}>
+                        <input
+                            type="checkbox"
+                            value={option}
+                            checked={inputs.scope_of_analysis.includes(option)}
+                            onChange={(e) => handleInputChange(e, 'scope_of_analysis')}
+                        />
+                        {option}
+                    </label>
+                ))}
             </div>
         </div>
-    );
+
+        {/* Sentiment Tone (Dropdown) */}
+        <div className="prompt-criteria">
+            <label>Sentiment Tone</label>
+            <select
+                value={inputs.sentiment_tone}
+                onChange={(e) => handleInputChange(e, 'sentiment_tone')}
+            >
+                {['Neutral', 'Optimistic', 'Critical', 'Balanced'].map((option) => (
+                    <option key={option} value={option}>
+                        {option}
+                    </option>
+                ))}
+            </select>
+        </div>
+
+        {/* Level of Detail (Dropdown) */}
+        <div className="prompt-criteria">
+            <label>Level of Detail</label>
+            <select
+                value={inputs.level_of_detail}
+                onChange={(e) => handleInputChange(e, 'level_of_detail')}
+            >
+                {['Brief (2-3 bullet points)', 'Moderate (Short paragraph)', 'Comprehensive (Detailed analysis)'].map((option) => (
+                    <option key={option} value={option}>
+                        {option}
+                    </option>
+                ))}
+            </select>
+        </div>
+
+        {/* Preferred News Sources */}
+        <div className="prompt-criteria">
+            <label>Preferred News Sources</label>
+            <div>
+                {['Reuters', 'Bloomberg', 'The Verge', 'TechCrunch', 'Local News Sources'].map((option) => (
+                    <label key={option}>
+                        <input
+                            type="checkbox"
+                            value={option}
+                            checked={inputs.preferred_sources.includes(option)}
+                            onChange={(e) => handleInputChange(e, 'preferred_sources')}
+                        />
+                        {option}
+                    </label>
+                ))}
+            </div>
+        </div>
+
+        {/* Time Frame */}
+        <div className="prompt-criteria">
+            <label>Time Frame</label>
+            <div>
+                {['Last 7 days', 'Last 30 days', 'Last 6 months'].map((option) => (
+                    <label key={option}>
+                        <input
+                            type="radio"
+                            value={option}
+                            checked={inputs.time_frame === option}
+                            onChange={(e) => handleInputChange(e, 'time_frame')}
+                        />
+                        {option}
+                    </label>
+                ))}
+            </div>
+        </div>
+
+        {/* Industry Focus */}
+        <div className="prompt-criteria">
+            <label>Industry Focus</label>
+            <div>
+                {['Technology', 'Finance', 'Healthcare', 'Retail'].map((option) => (
+                    <label key={option}>
+                        <input
+                            type="checkbox"
+                            value={option}
+                            checked={inputs.industry_focus.includes(option)}
+                            onChange={(e) => handleInputChange(e, 'industry_focus')}
+                        />
+                        {option}
+                    </label>
+                ))}
+            </div>
+        </div>
+
+        {/* Specific Topics */}
+        <div className="prompt-criteria">
+            <label>Specific Topics</label>
+            <input
+                type="text"
+                value={inputs.specific_topics}
+                onChange={(e) => handleInputChange(e, 'specific_topics')}
+            />
+        </div>
+
+        {/* Preferred Format */}
+        <div className="prompt-criteria">
+            <label>Preferred Format</label>
+            <div>
+                {['Bullet Points', 'Short Summary', 'Detailed Report'].map((option) => (
+                    <label key={option}>
+                        <input
+                            type="radio"
+                            value={option}
+                            checked={inputs.preferred_format === option}
+                            onChange={(e) => handleInputChange(e, 'preferred_format')}
+                        />
+                        {option}
+                    </label>
+                ))}
+            </div>
+        </div>
+
+        {/* Submit Button */}
+        <button className="submit-button" onClick={handleSubmit}>Get Career Advice</button>
+    </div>
+
+    {/* Right Side: AI Chat Window */}
+    <div className="output-section">
+        <h3>AI's Response</h3>
+        <div className="chat-window">
+            {responses.map((response, index) => (
+                <div key={index}>
+                    <div><strong>Q:</strong> {response.question}</div>
+                    <div dangerouslySetInnerHTML={{ __html: formatResponse(response.answer) }} />
+                </div>
+            ))}
+        </div>
+    </div>
+</div>
+);
+
 };
 
 export default CareerAssistant;
