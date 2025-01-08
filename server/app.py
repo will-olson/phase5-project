@@ -17,6 +17,7 @@ client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ALPHA_VANTAGE_API_KEY = os.getenv("ALPHA_VANTAGE_API_KEY")
 
 news_cache = {}
 CACHE_TTL = 86400
@@ -165,6 +166,46 @@ def career_assistant():
         logging.error(f"Error during OpenAI request: {e}")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/world-bank", methods=["GET"])
+def get_world_bank_data():
+    indicator = request.args.get("indicator", "SP.POP.TOTL")
+    url = f"http://api.worldbank.org/v2/country/all/indicator/{indicator}?format=json"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch World Bank data"}), 500
+
+    data = response.json()
+    return jsonify(data)
+
+financial_metrics_cache = {}
+
+@app.route('/financial-metrics/<string:company_symbol>', methods=['GET'])
+def get_financial_metrics(company_symbol):
+    current_time = time.time()
+    
+    # Check cache
+    if company_symbol in financial_metrics_cache:
+        cached_data, timestamp = financial_metrics_cache[company_symbol]
+        if current_time - timestamp < CACHE_TTL:
+            return jsonify(cached_data), 200
+    
+    # Fetch data from Alpha Vantage API
+    response = requests.get("https://www.alphavantage.co/query", params={
+        "function": "OVERVIEW",
+        "symbol": company_symbol,
+        "apikey": ALPHA_VANTAGE_API_KEY
+    })
+
+    if response.status_code == 200:
+        metrics_data = response.json()
+        
+        # Cache the data
+        financial_metrics_cache[company_symbol] = (metrics_data, current_time)
+        
+        return jsonify(metrics_data), 200
+    else:
+        return jsonify({"error": "Failed to fetch financial metrics"}), 500
     
 def create_app():
     return app

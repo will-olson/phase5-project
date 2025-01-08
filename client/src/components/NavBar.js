@@ -29,6 +29,7 @@ function Navbar({ isLoggedIn, onLogout }) {
         <nav className="navbar">
             <button onClick={() => navigate('/')} className="navbar-link">Home</button>
             <button onClick={() => navigate('/companies')} className="navbar-link">Companies</button>
+            <button onClick={() => navigate('/data')} className="navbar-link">Data</button>
             <button onClick={() => navigate('/industry-news')} className="navbar-link">Industry News</button>
             
             {/* Only show Career Assistant if logged in */}

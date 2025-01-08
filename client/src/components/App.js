@@ -6,7 +6,8 @@ import ProfilePage from './ProfilePage';
 import IndustryNews from './IndustryNews';
 import CompaniesPage from './CompaniesPage';
 import CompanyForm from './CompanyForm';
-import CareerAssistant from './CareerAssistant'
+import CareerAssistant from './CareerAssistant';
+import DataPage from './DataPage';
 
 const API_BASE_URL = 'http://127.0.0.1:5555';
 
@@ -111,6 +112,7 @@ function App() {
                     <Route path="/profile" element={<ProfilePage loggedInUser={loggedInUser} favorites={favorites} fetchFavorites={() => fetchFavorites(loggedInUser?.id)} />} />
                     <Route path="/industry-news" element={<IndustryNews />} />
                     <Route path="/companies" element={<CompaniesPage />} />
+                    <Route path="/data" element={<DataPage />} />
                     <Route path="/career-assistant" element={<CareerAssistant />} /> {/* New route for Career Assistant */}
                     <Route path="/" element={
                         loggedInUser ? (
