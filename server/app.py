@@ -176,7 +176,12 @@ def get_world_bank_data():
         return jsonify({"error": "Failed to fetch World Bank data"}), 500
 
     data = response.json()
+
+    if len(data) < 2 or not data[1]:
+        return jsonify({"error": f"No data found for indicator {indicator}"}), 500
+
     return jsonify(data)
+
 
 financial_metrics_cache = {}
 

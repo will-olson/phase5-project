@@ -39,23 +39,33 @@ function DataPage() {
         };
     }, []);
 
-    
     const fetchTopCountries = async () => {
         try {
-            const response = await axios.get('https://api.worldbank.org/v2/country?format=json');
-            const countries = response.data[1].map(country => ({
-                name: country.name,
-                population: country.population || 'N/A',
-                GDP: country.gdp || 'N/A',
-                gdpPerCapita: country.gdpPerCapita || 'N/A',
+            // Fetch list of all countries
+            const countriesResponse = await axios.get('https://api.worldbank.org/v2/country?format=json');
+            
+            // Extract relevant country data from the response
+            const countries = countriesResponse.data[1].map(country => ({
+                id: country.id, // ISO3 code, e.g., "BRA" for Brazil
+                name: country.name, // Country name
+                region: country.region.value, // Region name (e.g., "Latin America & Caribbean")
+                incomeLevel: country.incomeLevel.value, // Income level (e.g., "Upper middle income")
+                capitalCity: country.capitalCity, // Capital city
+                longitude: country.longitude, // Longitude
+                latitude: country.latitude, // Latitude
             }));
-            setTopCountries(countries.slice(0, 5));
+
+            // Shuffle countries array
+            const shuffledCountries = countries.sort(() => Math.random() - 0.5);
+
+            // Set the top 5 countries after shuffling
+            setTopCountries(shuffledCountries.slice(0, 5));
+
         } catch (err) {
             console.error('Error fetching top countries:', err);
         }
     };
 
-    
     const fetchTopStocks = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:5555/api/top-stocks');
@@ -125,14 +135,14 @@ function DataPage() {
 
             {userId && !searchQuery && (
                 <>
-                    <h3>Top 5 Countries by Population, GDP, and GDP Per Capita</h3>
+                    <h3>5 Countries by Region, Income Level, and Capital City</h3>
                     <div className="top-countries">
                         {topCountries.map((country, index) => (
                             <div key={index} className="country-tile">
                                 <h4>{country.name}</h4>
-                                <p>Population: {country.population}</p>
-                                <p>GDP: {country.GDP}</p>
-                                <p>GDP per capita: {country.gdpPerCapita}</p>
+                                <p>Region: {country.region}</p>
+                                <p>Income Level: {country.incomeLevel}</p>
+                                <p>Capital City: {country.capitalCity}</p>
                             </div>
                         ))}
                     </div>
