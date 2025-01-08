@@ -184,13 +184,13 @@ financial_metrics_cache = {}
 def get_financial_metrics(company_symbol):
     current_time = time.time()
     
-    # Check cache
+    
     if company_symbol in financial_metrics_cache:
         cached_data, timestamp = financial_metrics_cache[company_symbol]
         if current_time - timestamp < CACHE_TTL:
             return jsonify(cached_data), 200
     
-    # Fetch data from Alpha Vantage API
+    
     response = requests.get("https://www.alphavantage.co/query", params={
         "function": "OVERVIEW",
         "symbol": company_symbol,
@@ -200,12 +200,33 @@ def get_financial_metrics(company_symbol):
     if response.status_code == 200:
         metrics_data = response.json()
         
-        # Cache the data
+        
         financial_metrics_cache[company_symbol] = (metrics_data, current_time)
         
         return jsonify(metrics_data), 200
     else:
         return jsonify({"error": "Failed to fetch financial metrics"}), 500
+
+
+@app.route('/api/top-stocks', methods=['GET'])
+def get_top_stocks():
+    top_stocks_symbols = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA']
+    
+    stocks_data = []
+    
+    for symbol in top_stocks_symbols:
+        response = requests.get("https://www.alphavantage.co/query", params={
+            "function": "OVERVIEW",
+            "symbol": symbol,
+            "apikey": ALPHA_VANTAGE_API_KEY
+        })
+
+        if response.status_code == 200:
+            stock_data = response.json()
+            stock_data['symbol'] = symbol
+            stocks_data.append(stock_data)
+    
+    return jsonify(stocks_data), 200
     
 def create_app():
     return app

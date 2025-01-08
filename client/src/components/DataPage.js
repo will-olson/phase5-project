@@ -4,11 +4,14 @@ import axios from 'axios';
 function DataPage() {
     const [companies, setCompanies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [randomCompanies, setRandomCompanies] = useState([]);
+    const [companySymbols, setCompanySymbols] = useState([]);
+    const [selectedSymbol, setSelectedSymbol] = useState('');
     const [userId, setUserId] = useState(localStorage.getItem('user_id'));
     const [apiData, setApiData] = useState({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [topCountries, setTopCountries] = useState([]);
+    const [topStocks, setTopStocks] = useState([]);
 
     useEffect(() => {
         fetch('http://127.0.0.1:5555/companies', {
@@ -18,9 +21,12 @@ function DataPage() {
             .then(response => response.json())
             .then(data => {
                 setCompanies(data);
-                setRandomCompanies(getRandomCompanies(data, 10));
+                setCompanySymbols(data.map(company => company.symbol));
             })
             .catch(error => console.log('Error fetching companies:', error));
+
+        fetchTopCountries();
+        fetchTopStocks();
 
         const handleStorageChange = () => {
             setUserId(localStorage.getItem('user_id'));
@@ -33,18 +39,39 @@ function DataPage() {
         };
     }, []);
 
-    const getRandomCompanies = (companiesArray, count) => {
-        const shuffled = [...companiesArray].sort(() => 0.5 - Math.random());
-        return shuffled.slice(0, count);
+    
+    const fetchTopCountries = async () => {
+        try {
+            const response = await axios.get('https://api.worldbank.org/v2/country?format=json');
+            const countries = response.data[1].map(country => ({
+                name: country.name,
+                population: country.population || 'N/A',
+                GDP: country.gdp || 'N/A',
+                gdpPerCapita: country.gdpPerCapita || 'N/A',
+            }));
+            setTopCountries(countries.slice(0, 5));
+        } catch (err) {
+            console.error('Error fetching top countries:', err);
+        }
+    };
+
+    
+    const fetchTopStocks = async () => {
+        try {
+            const response = await axios.get('http://127.0.0.1:5555/api/top-stocks');
+            setTopStocks(response.data.slice(0, 5));
+        } catch (err) {
+            console.error('Error fetching top stocks:', err);
+        }
     };
 
     const handleSearchChange = (event) => {
         setSearchQuery(event.target.value);
     };
 
-    const filteredCompanies = companies.filter(company =>
-        company.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const handleSelectChange = (event) => {
+        setSelectedSymbol(event.target.value);
+    };
 
     const fetchApiData = async (companySymbol) => {
         try {
@@ -70,6 +97,10 @@ function DataPage() {
         }
     };
 
+    const filteredCompanies = companies.filter(company =>
+        company.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className="container">
             <h2>Data Insights</h2>
@@ -92,9 +123,50 @@ function DataPage() {
                 </div>
             )}
 
-            {userId && (
+            {userId && !searchQuery && (
                 <>
-                    <h3>Data Insights</h3>
+                    <h3>Top 5 Countries by Population, GDP, and GDP Per Capita</h3>
+                    <div className="top-countries">
+                        {topCountries.map((country, index) => (
+                            <div key={index} className="country-tile">
+                                <h4>{country.name}</h4>
+                                <p>Population: {country.population}</p>
+                                <p>GDP: {country.GDP}</p>
+                                <p>GDP per capita: {country.gdpPerCapita}</p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <h3>Top 5 Stocks by Market Cap</h3>
+                    <div className="top-stocks">
+                        {topStocks.map((stock, index) => (
+                            <div key={index} className="stock-tile">
+                                <h4>{stock.Name} ({stock.symbol})</h4>
+                                <p>Market Cap: {stock.MarketCapitalization}</p>
+                                <button onClick={() => fetchApiData(stock.symbol)}>Fetch Data</button>
+                                {apiData[stock.symbol] && (
+                                    <>
+                                        <h5>Financial Metrics</h5>
+                                        <ul>
+                                            {Object.entries(apiData[stock.symbol].financialMetrics || {}).map(
+                                                ([key, value]) => (
+                                                    <li key={key}>
+                                                        <strong>{key}:</strong> {value}
+                                                    </li>
+                                                )
+                                            )}
+                                        </ul>
+                                    </>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {userId && searchQuery && (
+                <>
+                    <h3>Search Results</h3>
                     <div className="company-grid">
                         {filteredCompanies.length > 0 ? (
                             filteredCompanies.map(company => (
@@ -121,21 +193,20 @@ function DataPage() {
 
                                             <h5>World Bank Regional Insights</h5>
                                             <ul>
-                                                {apiData[company.symbol].worldBankData[1] &&
-                                                    apiData[company.symbol].worldBankData[1]
-                                                        .slice(0, 5) 
-                                                        .map((region, index) => (
-                                                            <li key={index}>
-                                                                <strong>{region.country.value}:</strong> {region.value}
-                                                            </li>
-                                                        ))}
+                                                {Object.entries(apiData[company.symbol].worldBankData || {}).map(
+                                                    ([key, value]) => (
+                                                        <li key={key}>
+                                                            <strong>{key}:</strong> {value}
+                                                        </li>
+                                                    )
+                                                )}
                                             </ul>
                                         </>
                                     )}
                                 </div>
                             ))
                         ) : (
-                            <p>No companies found matching your search.</p>
+                            <p>No companies found</p>
                         )}
                     </div>
                 </>
