@@ -355,6 +355,7 @@ const CareerAssistant = () => {
       </div>
     </div>
   </div>
+  
 );
 
 };
