@@ -161,6 +161,33 @@ const CareerAssistant = () => {
     return <div className="error-message">{error}</div>;
   }
 
+  const copyToClipboard = (response) => {
+    
+    const formattedResponse = formatResponse(response);
+  
+    
+    if (navigator.clipboard.write) {
+      const htmlBlob = new Blob([formattedResponse], { type: 'text/html' });
+  
+      
+      navigator.clipboard.write([
+        new ClipboardItem({ 'text/html': htmlBlob })
+      ]).then(() => {
+        alert('Response copied');
+      }).catch((error) => {
+        console.error('Error copying to clipboard', error);
+      });
+    } else {
+      
+      navigator.clipboard.writeText(formattedResponse).then(() => {
+        alert('Response copied to clipboard!');
+      }).catch((error) => {
+        console.error('Error copying to clipboard', error);
+      });
+    }
+  };
+  
+
   return (
     <div className="career-assistant-container">
     {/* Left Side: Personalization Inputs */}
@@ -318,7 +345,7 @@ const CareerAssistant = () => {
 <div className="output-section">
       {/* Page Overview and Directions Tile */}
       <div className="header-tile">
-  <h4>Welcome to the Career Assistant</h4>
+  <h4>Welcome to Career Assistant</h4>
 </div>
 
 <div className="overview-tile">
@@ -350,6 +377,8 @@ const CareerAssistant = () => {
               <strong>Q:</strong> {response.question}
             </div>
             <div dangerouslySetInnerHTML={{ __html: formatResponse(response.answer) }} />
+            {/* Copy Button */}
+            <button onClick={() => copyToClipboard(response.answer)}>Copy Response</button>
           </div>
         ))}
       </div>
