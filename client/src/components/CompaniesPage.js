@@ -44,6 +44,7 @@ function CompaniesPage() {
     );
 
     return (
+        
         <div className="container">
             <h2>Companies</h2>
 

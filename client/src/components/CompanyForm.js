@@ -41,7 +41,7 @@ function CompanyForm({ onCompanyAdd }) {
     };
 
     return (
-        <div className="content-square">
+        <div className="">
             <form onSubmit={handleSubmit}>
                 {error && <p className="error-message">{error}</p>}
                 <input
