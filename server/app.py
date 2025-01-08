@@ -135,7 +135,7 @@ def career_assistant():
     if specific_topics:
         prompt += f"Specific Topics: {specific_topics}\n"
     prompt += f"Preferred Format: {preferred_format}\n"
-    prompt += f"Recent company news articles: If any of the favorite companies are mentioned, make sure to include clickable links to the latest news articles for those companies.\n"
+    prompt += f"Recent company news articles: Include clickable links to the latest news articles **only** for the companies mentioned in the user's career inquiry. If the company is part of the user's favorites but is not mentioned in the inquiry, exclude it from the news section.\n"
     prompt += favorites_prompt
     
     
