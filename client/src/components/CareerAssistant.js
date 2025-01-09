@@ -363,7 +363,10 @@ const CareerAssistant = () => {
     <span className="icon">➤</span> Click "Ask Career Assistant" to see your results below.
   </div>
   <p className="highlight italic-text">
-    Remember, Career Assistant knows your favorite companies. It can provide strategic analyses across this set of companies, evaluate relative investment opporunities, recommend portolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
+    Remember, Career Assistant knows your favorite companies. When asked general career questions, it will use those favorite companies to establish your career preferences.
+  </p>
+  <p className="highlight italic-text">
+  It can also provide strategic analyses across this set of companies, evaluate relative investment opporunities, recommend portolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
   </p>
 </div>
 
