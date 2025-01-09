@@ -68,13 +68,13 @@ function DataPage() {
             }));
     
             if (query) {
-                // Filter countries based on user search query
+                
                 const filteredCountries = countries.filter(country =>
                     country.name.toLowerCase().includes(query.toLowerCase())
                 );
                 setTopCountries(filteredCountries);
             } else {
-                // Display randomized countries as default
+                
                 const shuffledCountries = countries.sort(() => Math.random() - 0.5);
                 setTopCountries(shuffledCountries.slice(0, 5));
             }
@@ -173,9 +173,51 @@ function DataPage() {
         }
     };
 
+    const [dataCatalogQuery, setDataCatalogQuery] = useState('');
+    const [catalogResults, setCatalogResults] = useState([]);
+
+    const handleDataCatalogSearchChange = (event) => {
+        const query = event.target.value.trim();
+        setDataCatalogQuery(query);
+        if (query.length > 0) {
+            fetchCatalogResults(query);
+        } else {
+            setCatalogResults([]);
+        }
+    };
+
+    const fetchCatalogResults = async (query) => {
+        try {
+            const response = await axios.get('http://localhost:5555/api/search', {
+                params: { q: query }
+            });
+    
+            console.log("Full API Response:", response);
+    
+            console.log("Response Data Field:", response.data);
+    
+            if (Array.isArray(response.data.data)) {
+                console.log("'data' is an array with length:", response.data.data.length);
+            } else {
+                console.warn("'data' is not an array or missing");
+            }
+    
+            if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+                console.log("Setting catalog results with data:", response.data.data);
+                setCatalogResults(response.data.data);
+            } else {
+                console.log("No results found, resetting catalog results.");
+                setCatalogResults([]);
+            }
+        } catch (err) {
+            console.error('Error fetching data catalog results:', err);
+        }
+    };
+    
+    
     return (
         <div className="container">
-            <h2>Data Insights</h2>
+            <h2>Financial Metrics, Global Insights, & Detailed Reporting</h2>
     
             {!userId && (
                 <div className="company-tile">
@@ -188,7 +230,7 @@ function DataPage() {
                     <div className="company-search">
                         <input
                             type="text"
-                            placeholder="Search for companies..."
+                            placeholder="Search companies"
                             value={searchQuery}
                             onChange={handleSearchChange}
                             className="search-input"
@@ -203,6 +245,24 @@ function DataPage() {
                             className="search-input"
                         />
                     </div>
+                    <div className="company-search">
+                            <input
+                                type="text"
+                                placeholder="Search regions"
+                                value={countrySearchQuery}
+                                onChange={handleCountrySearchChange}
+                                className="search-input"
+                            />
+                        </div>
+                        <div className="topic-search">
+                            <input
+                                type="text"
+                                placeholder="Search reports"
+                                value={dataCatalogQuery}
+                                onChange={handleDataCatalogSearchChange}
+                                className="search-input"
+                            />
+                        </div>
                 </div>
             )}
     
@@ -219,15 +279,34 @@ function DataPage() {
     
             {userId && !searchQuery && (
                 <>
-                    <h3>Countries by Region, Income Level, and Capital City</h3>
-                    <div className="search-bar-container"></div>
-                        <input
-                            type="text"
-                            placeholder="Search for countries..."
-                            value={countrySearchQuery}
-                            onChange={handleCountrySearchChange}
-                            className="search-input"
-                        />
+                    <div className="tiles-container">
+                        <div className="tile">
+                            <em>Use company search to explore publicly traded companies and financial metrics.</em>
+                        </div>
+                        <div className="tile">
+                            <em>Review topics to guide key considerations for global analyses.</em>
+                        </div>
+                        <div className="tile">
+                            <em>Use region search to view income levels and capital cities.</em>
+                        </div>
+                        <div className="tile">
+                            <em>Access data and reporting from The World Bank.</em>
+
+                        </div>
+                    </div>
+
+                    <div className="data-catalog-results">
+                        {catalogResults.length > 0 && (
+                            catalogResults.map((item, index) => (
+                                <div key={index} className="data-catalog-item">
+                                    <h4>{item.title}</h4>
+                                    <p>{item.description}</p>
+                                    <a href={item.link} target="_blank" rel="noopener noreferrer">View Report</a>
+                                </div>
+                            ))
+                        )}
+                    </div>
+
                     <div className="top-countries">
                         {topCountries.map((country, index) => (
                             <div key={index} className="country-tile">

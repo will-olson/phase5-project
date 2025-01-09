@@ -263,8 +263,68 @@ def symbol_search():
     return jsonify({'error': 'Company name is required'}), 400
 
 
+@app.route('/api/search', methods=['GET'])
+def search_catalog():
+    query = request.args.get('q')
+    if not query:
+        return jsonify({'error': 'Query parameter "q" is required'}), 400
 
-    
+    url = 'https://datacatalogapi.worldbank.org/ddhxext/Search'
+    params = {
+        'qname': 'dataset',
+        'qterm': query,
+        '$top': 10
+    }
+
+    try:
+        
+        response = requests.get(url, params=params)
+
+        
+        print("Response Status Code:", response.status_code)
+        print("Raw Response Text:", response.text)
+
+        response.raise_for_status()
+        external_data = response.json()
+
+        
+        print("External API Response (JSON):", external_data)
+
+        
+        items = external_data.get("Response", {}).get("value", [])
+        if not isinstance(items, list) or not items:
+            print("No valid items found in 'value' key.")
+            return jsonify({'data': []})
+
+        
+        processed_data = []
+        for item in items:
+            title = item.get("name", "No Title")
+            description = item.get("identification", {}).get("description", "No Description")
+            link = item.get("app_legacy_url", "#")
+            keywords = item.get("keywords_list", [])
+
+            
+            processed_data.append({
+                "title": title,
+                "description": description,
+                "link": link,
+                "keywords": keywords
+            })
+
+        
+        print("Processed Data:", processed_data)
+
+        
+        return jsonify({'data': processed_data})
+
+    except requests.exceptions.RequestException as e:
+        print("Error fetching data:", e)
+        return jsonify({'error': 'Failed to fetch data from external API'}), 500
+    except Exception as e:
+        print("Unexpected error:", e)
+        return jsonify({'error': 'An unexpected error occurred'}), 500
+
 def create_app():
     return app
 
