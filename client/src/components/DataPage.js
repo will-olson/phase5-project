@@ -251,12 +251,7 @@ function DataPage() {
                             filteredCompanies.map(company => (
                                 <div key={company.id} className="data-tile">
                                     <h4>{company.name}</h4>
-                                    <button onClick={() => fetchApiData(company.symbol)}>
-                                        Fetch Data
-                                    </button>
-                                    {loading && <p>Loading data...</p>}
-                                    {error && <p>{error}</p>}
-
+                                    <button onClick={() => fetchApiData(company.symbol)}>Fetch Data</button>
                                     {apiData[company.symbol] && (
                                         <>
                                             <h5>Financial Metrics</h5>
@@ -269,19 +264,10 @@ function DataPage() {
                                                     )
                                                 )}
                                             </ul>
-
-                                            <h5>World Bank Regional Insights</h5>
-                                            <ul>
-                                                {Object.entries(apiData[company.symbol].worldBankData || {}).map(
-                                                    ([key, value]) => (
-                                                        <li key={key}>
-                                                            <strong>{key}:</strong> {value}
-                                                        </li>
-                                                    )
-                                                )}
-                                            </ul>
+                                           
                                         </>
                                     )}
+
                                 </div>
                             ))
                         ) : (
