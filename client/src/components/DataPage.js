@@ -4,7 +4,7 @@ import axios from 'axios';
 function DataPage() {
     const [companies, setCompanies] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [companySymbols, setCompanySymbols] = useState([]);
+    const [symbolMatches, setSymbolMatches] = useState([]);
     const [selectedSymbol, setSelectedSymbol] = useState('');
     const [userId, setUserId] = useState(localStorage.getItem('user_id'));
     const [apiData, setApiData] = useState({});
@@ -21,11 +21,8 @@ function DataPage() {
             credentials: 'include',
         })
             .then(response => response.json())
-            .then(data => {
-                setCompanies(data);
-                setCompanySymbols(data.map(company => company.symbol));
-            })
-            .catch(error => console.log('Error fetching companies:', error));
+            .then(data => setCompanies(data))
+            .catch(err => console.error('Error fetching companies:', err));
 
         fetchTopCountries();
         fetchTopStocks();
@@ -35,10 +32,7 @@ function DataPage() {
         };
 
         window.addEventListener('storage', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
     const fetchTopCountries = async () => {
@@ -71,19 +65,20 @@ function DataPage() {
 
     const searchSymbol = async (companyName) => {
         try {
-            const response = await axios.get(`http://127.0.0.1:5555/symbol-search?company_name=${companyName}`);
-            if (response.data && response.data.length > 0) {
+            const response = await axios.get(`http://127.0.0.1:5555/symbol-search`, {
+                params: { company_name: companyName },
+            });
+            if (response.status === 200 && response.data.length > 0) {
                 setSymbolMatches(response.data);
                 setError('');
             } else {
-                setError(response.data.error || 'No symbols found for the company');
+                setSymbolMatches([]);
+                setError('No matching symbols found.');
             }
         } catch (err) {
-            setError(`Error searching for company symbol: ${err.response?.data?.error || err.message}`);
+            setError(`Error searching for company symbols: ${err.response?.data?.error || err.message}`);
         }
     };
-
-    const [symbolMatches, setSymbolMatches] = useState([]);
 
     const handleSearchChange = (event) => {
         const query = event.target.value.trim();
@@ -96,28 +91,17 @@ function DataPage() {
     };
 
     const handleSelectChange = (event) => {
-        const selectedSymbol = event.target.value;
-        setSelectedSymbol(selectedSymbol);
-        fetchApiData(selectedSymbol);
+        const symbol = event.target.value;
+        setSelectedSymbol(symbol);
+        fetchApiData(symbol);
     };
 
     const fetchApiData = async (companySymbol) => {
         try {
             setLoading(true);
             setError('');
-
-            const [financialResponse, worldBankResponse] = await Promise.all([
-                axios.get(`/financial-metrics/${companySymbol}`),
-                axios.get(`/api/world-bank`, { params: { indicator: "SP.POP.TOTL" } }),
-            ]);
-
-            setApiData(prevState => ({
-                ...prevState,
-                [companySymbol]: {
-                    financialMetrics: financialResponse.data,
-                    worldBankData: worldBankResponse.data,
-                },
-            }));
+            const financialResponse = await axios.get(`/financial-metrics/${companySymbol}`);
+            setApiData(prev => ({ ...prev, [companySymbol]: financialResponse.data }));
         } catch (err) {
             setError(`Failed to fetch data for ${companySymbol}`);
         } finally {
@@ -152,56 +136,50 @@ function DataPage() {
         }
     };
 
-    const filteredCompanies = companies.filter(company =>
-        company.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
     return (
         <div className="container">
             <h2>Data Insights</h2>
-
+    
             {!userId && (
                 <div className="company-tile">
                     <p>You must be logged in to view data insights.</p>
                 </div>
             )}
-
+    
             {userId && (
-            <div className="search-bar-container">
-                <div className="company-search">
-                <input
-                    type="text"
-                    placeholder="Search for companies..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="search-input"
-                />
+                <div className="search-bar-container">
+                    <div className="company-search">
+                        <input
+                            type="text"
+                            placeholder="Search for companies..."
+                            value={searchQuery}
+                            onChange={handleSearchChange}
+                            className="search-input"
+                        />
+                    </div>
+                    <div className="topic-search">
+                        <input
+                            type="text"
+                            placeholder="Search topics"
+                            value={topicSearchQuery}
+                            onChange={handleTopicSearchChange}
+                            className="search-input"
+                        />
+                    </div>
                 </div>
-                <div className="topic-search">
-                <input
-                    type="text"
-                    placeholder="Search topics"
-                    value={topicSearchQuery}
-                    onChange={handleTopicSearchChange}
-                    className="search-input"
-                />
-                </div>
-            </div>
             )}
-
+    
             {topics.length > 0 && (
-            <div className="topics-list">
-                {topics.map(topic => (
-                <div key={topic.id}>
-                    <h4>{topic.name}</h4>
-                    <p>{topic.description}</p>
+                <div className="topics-list">
+                    {topics.map(topic => (
+                        <div key={topic.id}>
+                            <h4>{topic.name}</h4>
+                            <p>{topic.description}</p>
+                        </div>
+                    ))}
                 </div>
-                ))}
-            </div>
             )}
-
-
-
+    
             {userId && !searchQuery && (
                 <>
                     <h3>5 Countries by Region, Income Level, and Capital City</h3>
@@ -215,7 +193,7 @@ function DataPage() {
                             </div>
                         ))}
                     </div>
-
+    
                     <h3>Top 5 Stocks by Market Cap</h3>
                     <div className="top-stocks">
                         {topStocks.map((stock, index) => (
@@ -242,21 +220,21 @@ function DataPage() {
                     </div>
                 </>
             )}
-
+    
             {userId && searchQuery && (
                 <>
                     <h3>Search Results</h3>
                     <div className="company-grid">
-                        {filteredCompanies.length > 0 ? (
-                            filteredCompanies.map(company => (
-                                <div key={company.id} className="data-tile">
-                                    <h4>{company.name}</h4>
-                                    <button onClick={() => fetchApiData(company.symbol)}>Fetch Data</button>
-                                    {apiData[company.symbol] && (
+                        {symbolMatches.length > 0 ? (
+                            symbolMatches.map(match => (
+                                <div key={match.symbol} className="data-tile">
+                                    <h4>{match.name} ({match.symbol})</h4>
+                                    <button onClick={() => fetchApiData(match.symbol)}>Fetch Data</button>
+                                    {apiData[match.symbol] && (
                                         <>
                                             <h5>Financial Metrics</h5>
                                             <ul>
-                                                {Object.entries(apiData[company.symbol].financialMetrics || {}).map(
+                                                {Object.entries(apiData[match.symbol].financialMetrics || {}).map(
                                                     ([key, value]) => (
                                                         <li key={key}>
                                                             <strong>{key}:</strong> {value}
@@ -264,10 +242,8 @@ function DataPage() {
                                                     )
                                                 )}
                                             </ul>
-                                           
                                         </>
                                     )}
-
                                 </div>
                             ))
                         ) : (
@@ -277,7 +253,7 @@ function DataPage() {
                 </>
             )}
         </div>
-    );
+    );    
 }
 
 export default DataPage;
