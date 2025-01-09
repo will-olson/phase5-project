@@ -48,12 +48,49 @@ function DataPage() {
                 latitude: country.latitude,
             }));
             const shuffledCountries = countries.sort(() => Math.random() - 0.5);
-            setTopCountries(shuffledCountries.slice(0, 5));
+            setTopCountries(shuffledCountries.slice(0, 4));
         } catch (err) {
             console.error('Error fetching top countries:', err);
         }
     };
 
+    const fetchCountries = async (query = '') => {
+        try {
+            const response = await axios.get('https://api.worldbank.org/v2/country?format=json');
+            const countries = response.data[1].map(country => ({
+                id: country.id,
+                name: country.name,
+                region: country.region.value,
+                incomeLevel: country.incomeLevel.value,
+                capitalCity: country.capitalCity,
+                longitude: country.longitude,
+                latitude: country.latitude,
+            }));
+    
+            if (query) {
+                // Filter countries based on user search query
+                const filteredCountries = countries.filter(country =>
+                    country.name.toLowerCase().includes(query.toLowerCase())
+                );
+                setTopCountries(filteredCountries);
+            } else {
+                // Display randomized countries as default
+                const shuffledCountries = countries.sort(() => Math.random() - 0.5);
+                setTopCountries(shuffledCountries.slice(0, 5));
+            }
+        } catch (err) {
+            console.error('Error fetching countries:', err);
+        }
+    };
+
+    const [countrySearchQuery, setCountrySearchQuery] = useState('');
+
+    const handleCountrySearchChange = (event) => {
+        const query = event.target.value.trim();
+        setCountrySearchQuery(query);
+        fetchCountries(query);
+    };
+    
     const fetchTopStocks = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:5555/api/top-stocks');
@@ -182,7 +219,15 @@ function DataPage() {
     
             {userId && !searchQuery && (
                 <>
-                    <h3>5 Countries by Region, Income Level, and Capital City</h3>
+                    <h3>Countries by Region, Income Level, and Capital City</h3>
+                    <div className="search-bar-container"></div>
+                        <input
+                            type="text"
+                            placeholder="Search for countries..."
+                            value={countrySearchQuery}
+                            onChange={handleCountrySearchChange}
+                            className="search-input"
+                        />
                     <div className="top-countries">
                         {topCountries.map((country, index) => (
                             <div key={index} className="country-tile">

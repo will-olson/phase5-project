@@ -978,10 +978,11 @@ h3 {
 
 .country-tile, .stock-tile, .data-tile {
     border: 1px solid #ccc;
-    padding: 15px;
+    padding: 5px;
     border-radius: 8px;
     background-color: #f9f9f9;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 30px;
 }
 
 body.dark-mode .country-tile, body.dark-mode .stock-tile, body.dark-mode .data-tile {
