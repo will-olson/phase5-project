@@ -322,58 +322,95 @@ function DataPage() {
                     <div className="top-stocks">
                         {topStocks.map((stock, index) => (
                             <div key={index} className="stock-tile">
-                                <h4>{stock.Name} ({stock.symbol})</h4>
-                                <p>Market Cap: {stock.MarketCapitalization}</p>
+                                <h4>
+                                    {stock.Name} ({stock.symbol})
+                                </h4>
+                                <p>Market Cap: ${parseInt(stock.MarketCapitalization).toLocaleString()}</p>
                                 <button onClick={() => fetchApiData(stock.symbol)}>Fetch Data</button>
                                 {apiData[stock.symbol] && (
                                     <>
-                                        <h5>Financial Metrics</h5>
-                                        <ul>
-                                            {Object.entries(apiData[stock.symbol].financialMetrics || {}).map(
-                                                ([key, value]) => (
-                                                    <li key={key}>
-                                                        <strong>{key}:</strong> {value}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
+                                        <div className="stock-details">
+                                            <h5>General Info</h5>
+                                            <ul>
+                                                <li><strong>Address:</strong> {apiData[stock.symbol]["Address"]}</li>
+                                                <li><strong>Industry:</strong> {apiData[stock.symbol]["Industry"]}</li>
+                                                <li><strong>Sector:</strong> {apiData[stock.symbol]["Sector"]}</li>
+                                                <li><strong>Website:</strong> <a href={apiData[stock.symbol]["OfficialSite"]} target="_blank" rel="noopener noreferrer">{apiData[stock.symbol]["OfficialSite"]}</a></li>
+                                            </ul>
+
+                                            <h5>Financial Metrics</h5>
+                                            <ul>
+                                                <li><strong>200-Day Moving Avg:</strong> {apiData[stock.symbol]["200DayMovingAverage"]}</li>
+                                                <li><strong>50-Day Moving Avg:</strong> {apiData[stock.symbol]["50DayMovingAverage"]}</li>
+                                                <li><strong>52-Week High:</strong> {apiData[stock.symbol]["52WeekHigh"]}</li>
+                                                <li><strong>52-Week Low:</strong> {apiData[stock.symbol]["52WeekLow"]}</li>
+                                                <li><strong>EPS:</strong> {apiData[stock.symbol]["EPS"]}</li>
+                                                <li><strong>PE Ratio:</strong> {apiData[stock.symbol]["PERatio"]}</li>
+                                                <li><strong>Dividend Yield:</strong> {apiData[stock.symbol]["DividendYield"]}</li>
+                                            </ul>
+
+                                            <h5>Analyst Ratings</h5>
+                                            <ul>
+                                                <li><strong>Strong Buy:</strong> {apiData[stock.symbol]["AnalystRatingStrongBuy"]}</li>
+                                                <li><strong>Buy:</strong> {apiData[stock.symbol]["AnalystRatingBuy"]}</li>
+                                                <li><strong>Hold:</strong> {apiData[stock.symbol]["AnalystRatingHold"]}</li>
+                                                <li><strong>Sell:</strong> {apiData[stock.symbol]["AnalystRatingSell"]}</li>
+                                                <li><strong>Strong Sell:</strong> {apiData[stock.symbol]["AnalystRatingStrongSell"]}</li>
+                                                <li><strong>Target Price:</strong> ${apiData[stock.symbol]["AnalystTargetPrice"]}</li>
+                                            </ul>
+                                        </div>
                                     </>
                                 )}
                             </div>
                         ))}
                     </div>
-                </>
-            )}
-    
-            {userId && searchQuery && (
-                <>
-                    <h3>Search Results</h3>
+
+                    
                     <div className="company-grid">
                         {symbolMatches.length > 0 ? (
-                            symbolMatches.map(match => (
+                            symbolMatches.map((match) => (
                                 <div key={match.symbol} className="data-tile">
-                                    <h4>{match.name} ({match.symbol})</h4>
+                                    <h4>
+                                        {match.name} ({match.symbol})
+                                    </h4>
                                     <button onClick={() => fetchApiData(match.symbol)}>Fetch Data</button>
                                     {apiData[match.symbol] && (
-                                        <>
+                                        <div className="stock-details">
+                                            <h5>General Info</h5>
+                                            <ul>
+                                                <li><strong>Address:</strong> {apiData[match.symbol]["Address"]}</li>
+                                                <li><strong>Industry:</strong> {apiData[match.symbol]["Industry"]}</li>
+                                                <li><strong>Sector:</strong> {apiData[match.symbol]["Sector"]}</li>
+                                                <li><strong>Website:</strong> <a href={apiData[match.symbol]["OfficialSite"]} target="_blank" rel="noopener noreferrer">{apiData[match.symbol]["OfficialSite"]}</a></li>
+                                            </ul>
+
                                             <h5>Financial Metrics</h5>
                                             <ul>
-                                                {Object.entries(apiData[match.symbol].financialMetrics || {}).map(
-                                                    ([key, value]) => (
-                                                        <li key={key}>
-                                                            <strong>{key}:</strong> {value}
-                                                        </li>
-                                                    )
-                                                )}
+                                                <li><strong>200-Day Moving Avg:</strong> {apiData[match.symbol]["200DayMovingAverage"]}</li>
+                                                <li><strong>50-Day Moving Avg:</strong> {apiData[match.symbol]["50DayMovingAverage"]}</li>
+                                                <li><strong>52-Week High:</strong> {apiData[match.symbol]["52WeekHigh"]}</li>
+                                                <li><strong>52-Week Low:</strong> {apiData[match.symbol]["52WeekLow"]}</li>
+                                                <li><strong>EPS:</strong> {apiData[match.symbol]["EPS"]}</li>
+                                                <li><strong>PE Ratio:</strong> {apiData[match.symbol]["PERatio"]}</li>
+                                                <li><strong>Dividend Yield:</strong> {apiData[match.symbol]["DividendYield"]}</li>
                                             </ul>
-                                        </>
-                                    )}
-                                </div>
-                            ))
-                        ) : (
-                            <p>No companies found</p>
-                        )}
-                    </div>
+
+                                            <h5>Analyst Ratings</h5>
+                                            <ul>
+                                                <li><strong>Strong Buy:</strong> {apiData[match.symbol]["AnalystRatingStrongBuy"]}</li>
+                                                <li><strong>Buy:</strong> {apiData[match.symbol]["AnalystRatingBuy"]}</li>
+                                                <li><strong>Hold:</strong> {apiData[match.symbol]["AnalystRatingHold"]}</li>
+                                                <li><strong>Sell:</strong> {apiData[match.symbol]["AnalystRatingSell"]}</li>
+                                                <li><strong>Strong Sell:</strong> {apiData[match.symbol]["AnalystRatingStrongSell"]}</li>
+                                                <li><strong>Target Price:</strong> ${apiData[match.symbol]["AnalystTargetPrice"]}</li>
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : null}
+                        </div>
+
                 </>
             )}
         </div>
