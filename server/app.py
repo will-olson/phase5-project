@@ -154,14 +154,19 @@ def career_assistant():
             catalog_data = response.json().get('data', [])
 
             if catalog_data:
-                prompt += "Relevant World Bank reports based on your inquiry:\n"
+                prompt += "Based on your inquiry, here are some relevant World Bank reports that might be useful:\n"
+                
                 for report in catalog_data:
-                    prompt += f"- {report['title']} (Link: {report['link']})\n"
+                    if any(keyword.lower() in career_question.lower() for keyword in report['keywords']):
+                        prompt += f"- **{report['title']}**: {report['description']} (Link: {report['link']})\n"
+                    else:
+                        prompt += f"- **{report['title']}** (Link: {report['link']})\n"
             else:
-                prompt += "No relevant World Bank reports were found for your inquiry.\n"
+                prompt += "No relevant World Bank reports were found for your inquiry. You might want to try a different search term.\n"
         except requests.exceptions.RequestException as e:
             print(f"Error fetching catalog data: {e}")
             prompt += "There was an error retrieving World Bank reports. Please try again later.\n"
+
     
     api_data = {
         "model": "gpt-4o-mini",
