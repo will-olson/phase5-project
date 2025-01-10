@@ -12,6 +12,10 @@ const CareerAssistant = () => {
     industry_focus: [],
     specific_topics: '',
     preferred_format: 'Bullet Points',
+    selectedTopic: '', 
+    selectedCompany: '',
+    selectedRegion: '', 
+    selectedReport: '',
   });
   const [responses, setResponses] = useState([]);
   const [userFavorites, setUserFavorites] = useState([]);
@@ -20,6 +24,16 @@ const CareerAssistant = () => {
   const [loading, setLoading] = useState(true);
   const [loggedInUser, setLoggedInUser] = useState(localStorage.getItem('user_id'));
   const [authLoading, setAuthLoading] = useState(true);
+
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState('');
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [selectedReport, setSelectedReport] = useState('');
+  const [topics, setTopics] = useState([]);
+  const [companies, setCompanies] = useState([]);
+  const [regions, setRegions] = useState([]);
+  const [reports, setReports] = useState([]);
+
 
   const fetchUserFavorites = async (userId) => {
     try {
@@ -85,6 +99,52 @@ const CareerAssistant = () => {
     }
     setLoading(false);
   }, [userFavorites, inputs.time_frame]);
+
+  useEffect(() => {
+    fetchTopics();
+    fetchCompanies();
+    fetchRegions();
+    fetchReports();
+}, []);
+
+const fetchTopics = async () => {
+    try {
+        const response = await axios.get('https://api.worldbank.org/v2/topic?format=json');
+        setTopics(response.data[1].map(topic => topic.value));
+    } catch (err) {
+        console.error('Error fetching topics:', err);
+    }
+};
+
+const fetchCompanies = async () => {
+    try {
+        const response = await axios.get('http://127.0.0.1:5555/companies');
+        setCompanies(response.data);
+    } catch (err) {
+        console.error('Error fetching companies:', err);
+    }
+};
+
+const fetchRegions = async () => {
+    try {
+        const response = await axios.get('https://api.worldbank.org/v2/country?format=json');
+        setRegions(response.data[1].map(country => country.region.value));
+    } catch (err) {
+        console.error('Error fetching regions:', err);
+    }
+};
+
+const fetchReports = async () => {
+  try {
+      const response = await axios.get('http://localhost:5555/api/search', {
+          params: { q: 'reports' }
+      });
+      setReports(response.data.data);
+  } catch (err) {
+      console.error('Error fetching reports:', err);
+  }
+};
+
 
   const handleSubmit = async () => {
     try {
@@ -313,17 +373,83 @@ const CareerAssistant = () => {
                 ))}
             </div>
         </div>
-        {/* Include World Bank Reports Checkbox */}
-        <div className="prompt-criteria">
-            <label>
-                <input
-                    type="checkbox"
-                    checked={inputs.include_reports}
-                    onChange={(e) => handleInputChange(e, 'include_reports')}
-                />
-                Include relevant World Bank reports
-            </label>
+                {/* Topic Dropdown */}
+                <div className="search-field">
+            <label>Choose a Topic</label>
+            <select onChange={(e) => setInputs({ ...inputs, selectedTopic: e.target.value })} value={inputs.selectedTopic}>
+                <option value="">Select Topic</option>
+                {topics.map((topic, index) => (
+                    <option key={index} value={topic}>{topic}</option>
+                ))}
+            </select>
         </div>
+
+        {/* Company Dropdown */}
+        <div className="search-field">
+            <label>Choose a Company</label>
+            <select onChange={(e) => setInputs({ ...inputs, selectedCompany: e.target.value })} value={inputs.selectedCompany}>
+                <option value="">Select Company</option>
+                {companies.map((company, index) => (
+                    <option key={index} value={company.name}>{company.name}</option>
+                ))}
+            </select>
+        </div>
+
+        {/* Region Dropdown */}
+        <div className="search-field">
+            <label>Choose a Region</label>
+            <select onChange={(e) => setInputs({ ...inputs, selectedRegion: e.target.value })} value={inputs.selectedRegion}>
+                <option value="">Select Region</option>
+                {regions.map((region, index) => (
+                    <option key={index} value={region}>{region}</option>
+                ))}
+            </select>
+        </div>
+
+{/* Report Search Field */}
+<div className="search-field">
+    <label>Choose a Report</label>
+    <input 
+        type="text" 
+        placeholder="Search reports..." 
+        value={inputs.selectedReport} 
+        onChange={(e) => {
+            setInputs({ ...inputs, selectedReport: e.target.value });
+        }} 
+    />
+{/* Display filtered reports based on search */}
+{inputs.selectedReport && (
+    <div className="report-search-results">
+        {reports.filter(report => {
+            // Normalize both the search input and report title for better matching
+            const normalizedTitle = report.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const normalizedSearch = inputs.selectedReport.toLowerCase().replace(/[^a-z0-9]/g, '');
+            
+            return normalizedTitle.includes(normalizedSearch);
+        }).length > 0 ? (
+            reports.filter(report => {
+                const normalizedTitle = report.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const normalizedSearch = inputs.selectedReport.toLowerCase().replace(/[^a-z0-9]/g, '');
+                
+                return normalizedTitle.includes(normalizedSearch);
+            }).map((filteredReport, index) => (
+                <div 
+                    key={index} 
+                    className="report-search-result-item"
+                    onClick={() => setInputs({ ...inputs, selectedReport: filteredReport.title })}
+                >
+                    {filteredReport.title}
+                </div>
+            ))
+        ) : (
+            <div>No results found for "{inputs.selectedReport}".</div>
+        )}
+    </div>
+)}
+
+
+</div>
+
 
         {/* Specific Topics */}
         <div className="prompt-criteria">
@@ -358,34 +484,34 @@ const CareerAssistant = () => {
     </div>
 
     {/* Right Side: AI Chat Window */}
-{/* Right Side: AI Chat Window */}
+
 <div className="output-section">
       {/* Page Overview and Directions Tile */}
       <div className="header-tile">
   <h4>Welcome to Career Assistant</h4>
 </div>
 
-<div className="overview-tile">
-  <p className="highlight">
-    Use this tool to get personalized career insights and business analysis based on your questions and preferences. 
-    Here’s how to get started:
-  </p>
-  <div className="custom-list-item">
-    <span className="icon">➤</span> Use the left panel to input your career and business analysis questions.
+  <div className="overview-tile">
+    <p className="highlight">
+      Use this tool to get personalized career insights and business analysis based on your questions and preferences. 
+      Here’s how to get started:
+    </p>
+    <div className="custom-list-item">
+      <span className="icon">➤</span> Use the left panel to input your career and business analysis questions.
+    </div>
+    <div className="custom-list-item">
+      <span className="icon">➤</span> Choose the scope, sentiment tone, level of detail, response format, and more to inform the response.
+    </div>
+    <div className="custom-list-item">
+      <span className="icon">➤</span> Click "Ask Career Assistant" to see your results below.
+    </div>
+    <p className="highlight italic-text">
+      Remember, Career Assistant knows your favorite companies. When asked general career questions, it will use those favorite companies to establish your career preferences.
+    </p>
+    <p className="highlight italic-text">
+    It can also provide strategic analyses across this set of companies, evaluate relative investment opporunities, recommend portolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
+    </p>
   </div>
-  <div className="custom-list-item">
-    <span className="icon">➤</span> Choose the scope, sentiment tone, level of detail, response format, and more to inform the response.
-  </div>
-  <div className="custom-list-item">
-    <span className="icon">➤</span> Click "Ask Career Assistant" to see your results below.
-  </div>
-  <p className="highlight italic-text">
-    Remember, Career Assistant knows your favorite companies. When asked general career questions, it will use those favorite companies to establish your career preferences.
-  </p>
-  <p className="highlight italic-text">
-  It can also provide strategic analyses across this set of companies, evaluate relative investment opporunities, recommend portolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
-  </p>
-</div>
 
 
 

@@ -1054,3 +1054,19 @@ body.dark-mode .search-input {
 .dark-mode .sub-list {
   color: #d0d0d0;
 }
+
+.report-search-results {
+  border: 1px solid #ccc;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.report-search-result-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.report-search-result-item:hover {
+  background-color: #f0f0f0;
+}

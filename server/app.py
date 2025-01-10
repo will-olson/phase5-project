@@ -124,6 +124,11 @@ def career_assistant():
     industry_focus = data.get('industry_focus', [])
     specific_topics = data.get('specific_topics', '')
     preferred_format = data.get('preferred_format', 'Bullet Points')
+
+    selected_topic = data.get('selectedTopic', '')
+    selected_company = data.get('selectedCompany', '')
+    selected_region = data.get('selectedRegion', '')
+    selected_report = data.get('selectedReport', '')
     
     prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
     prompt += f"Sentiment Tone: {sentiment_tone}\n"
@@ -139,35 +144,17 @@ def career_assistant():
     prompt += f"Recent company news articles: Include clickable links to the latest news articles **only** for the companies mentioned in the user's career inquiry. If the company is part of the user's favorites but is not mentioned in the inquiry, exclude it from the news section.\n"
     prompt += favorites_prompt
     
-    
     logging.debug(f"Final AI prompt: {prompt}")
 
-    include_reports = data.get('include_reports', False)
-    if include_reports:
-        
-        query_params = {'q': career_question}
-        try:
-            
-            response = requests.get('http://localhost:5555/api/search', params=query_params)
-            response.raise_for_status() 
+    if selected_topic:
+        prompt += f"Focus on the topic: {selected_topic}. "
+    if selected_company:
+        prompt += f"Consider the company: {selected_company}. "
+    if selected_region:
+        prompt += f"Focus on the region: {selected_region}. "
+    if selected_report:
+        prompt += f"Search for related reports titled: {selected_report}. "
 
-            catalog_data = response.json().get('data', [])
-
-            if catalog_data:
-                prompt += "Based on your inquiry, here are some relevant World Bank reports that might be useful:\n"
-                
-                for report in catalog_data:
-                    if any(keyword.lower() in career_question.lower() for keyword in report['keywords']):
-                        prompt += f"- **{report['title']}**: {report['description']} (Link: {report['link']})\n"
-                    else:
-                        prompt += f"- **{report['title']}** (Link: {report['link']})\n"
-            else:
-                prompt += "No relevant World Bank reports were found for your inquiry. You might want to try a different search term.\n"
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching catalog data: {e}")
-            prompt += "There was an error retrieving World Bank reports. Please try again later.\n"
-
-    
     api_data = {
         "model": "gpt-4o-mini",
         "messages": [{"role": "user", "content": prompt}],
