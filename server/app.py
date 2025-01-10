@@ -142,6 +142,27 @@ def career_assistant():
     
     logging.debug(f"Final AI prompt: {prompt}")
 
+    include_reports = data.get('include_reports', False)
+    if include_reports:
+        
+        request.args = {'q': career_question}
+        
+        
+        response = search_catalog()
+        
+        
+        catalog_data = response.get_json().get('data', [])
+        
+        
+        if catalog_data:
+            prompt += f"Relevant World Bank reports based on your inquiry:\n"
+            for report in catalog_data:
+                prompt += f"- {report['title']} (Link: {report['link']})\n"
+        else:
+            prompt += "No relevant World Bank reports were found for your inquiry.\n"
+
+
+
     
     api_data = {
         "model": "gpt-4o-mini",

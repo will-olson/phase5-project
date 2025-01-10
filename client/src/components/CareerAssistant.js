@@ -97,6 +97,7 @@ const CareerAssistant = () => {
         news_articles: newsArticles,
         user_id: loggedInUser,
         prompt: `${inputs.prompt} Please check if any of the following companies are mentioned: ${companyNames}. If any of these companies are mentioned, provide the latest news articles and ensure that the links to these articles are clickable.`,
+        include_reports: inputs.include_reports,
       };
   
       const res = await axios.post('http://localhost:5555/career-assistant', payload);
@@ -119,16 +120,21 @@ const CareerAssistant = () => {
   const handleInputChange = (e, field) => {
     const { value, type, checked } = e.target;
     if (type === 'checkbox') {
-      setInputs((prevInputs) => {
-        const newArray = checked
-          ? [...prevInputs[field], value]
-          : prevInputs[field].filter((val) => val !== value);
-        return { ...prevInputs, [field]: newArray };
-      });
+      if (field === 'include_reports') {
+        setInputs((prevInputs) => ({ ...prevInputs, [field]: checked }));
+      } else {
+        setInputs((prevInputs) => {
+          const newArray = checked
+            ? [...prevInputs[field], value]
+            : prevInputs[field].filter((val) => val !== value);
+          return { ...prevInputs, [field]: newArray };
+        });
+      }
     } else {
       setInputs((prevInputs) => ({ ...prevInputs, [field]: value }));
     }
   };
+  
 
   const formatResponse = (response) => {
     
@@ -306,6 +312,17 @@ const CareerAssistant = () => {
                     </label>
                 ))}
             </div>
+        </div>
+        {/* Include World Bank Reports Checkbox */}
+        <div className="prompt-criteria">
+            <label>
+                <input
+                    type="checkbox"
+                    checked={inputs.include_reports}
+                    onChange={(e) => handleInputChange(e, 'include_reports')}
+                />
+                Include relevant World Bank reports
+            </label>
         </div>
 
         {/* Specific Topics */}
