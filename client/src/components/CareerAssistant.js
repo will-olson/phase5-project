@@ -134,16 +134,44 @@ const fetchRegions = async () => {
     }
 };
 
-const fetchReports = async () => {
+useEffect(() => {
+  if (inputs.selectedReport) {
+      fetchReports(inputs.selectedReport);
+  }
+}, [inputs.selectedReport]);
+
+
+const fetchReports = async (query) => {
   try {
+      
       const response = await axios.get('http://localhost:5555/api/search', {
-          params: { q: 'reports' }
+          params: { q: query }
       });
-      setReports(response.data.data);
+
+      console.log("Full API Response:", response);
+
+      console.log("Response Data Field:", response.data);
+
+      
+      if (Array.isArray(response.data.data)) {
+          console.log("'data' is an array with length:", response.data.data.length);
+      } else {
+          console.warn("'data' is not an array or missing");
+      }
+
+      
+      if (Array.isArray(response.data.data) && response.data.data.length > 0) {
+          console.log("Setting reports with data:", response.data.data);
+          setReports(response.data.data);
+      } else {
+          console.log("No results found, resetting reports.");
+          setReports([]);
+      }
   } catch (err) {
       console.error('Error fetching reports:', err);
   }
 };
+
 
 
   const handleSubmit = async () => {
@@ -157,7 +185,6 @@ const fetchReports = async () => {
         news_articles: newsArticles,
         user_id: loggedInUser,
         prompt: `${inputs.prompt} Please check if any of the following companies are mentioned: ${companyNames}. If any of these companies are mentioned, provide the latest news articles and ensure that the links to these articles are clickable.`,
-        include_reports: inputs.include_reports,
       };
   
       const res = await axios.post('http://localhost:5555/career-assistant', payload);
@@ -421,7 +448,7 @@ const fetchReports = async () => {
 {inputs.selectedReport && (
     <div className="report-search-results">
         {reports.filter(report => {
-            // Normalize both the search input and report title for better matching
+            
             const normalizedTitle = report.title.toLowerCase().replace(/[^a-z0-9]/g, '');
             const normalizedSearch = inputs.selectedReport.toLowerCase().replace(/[^a-z0-9]/g, '');
             
