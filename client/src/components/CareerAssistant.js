@@ -465,7 +465,11 @@ const fetchReports = async (query) => {
                     className="report-search-result-item"
                     onClick={() => setInputs({ ...inputs, selectedReport: filteredReport.title })}
                 >
-                    {filteredReport.title}
+                    <div>{filteredReport.title}</div>
+                    {/* Initially Hide Description and Display After Selecting */}
+                    {inputs.selectedReport === filteredReport.title && (
+                        <div className="report-description" dangerouslySetInnerHTML={{ __html: filteredReport.description }}></div>
+                    )}
                 </div>
             ))
         ) : (

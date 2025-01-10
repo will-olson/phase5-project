@@ -1055,18 +1055,59 @@ body.dark-mode .search-input {
   color: #d0d0d0;
 }
 
+
 .report-search-results {
   border: 1px solid #ccc;
   max-height: 200px;
   overflow-y: auto;
   margin-top: 8px;
+  width: 200%;
+  margin-left: -100%;
+  background-color: #fff;
+  color: #000;
 }
 
 .report-search-result-item {
   padding: 8px;
   cursor: pointer;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
 .report-search-result-item:hover {
   background-color: #f0f0f0;
+}
+
+.report-description {
+  font-size: 14px;
+  line-height: 1.6;
+  padding-top: 5px;
+  color: #333;
+  width: 100%;
+  box-sizing: border-box;
+  max-height: 400px;
+  overflow-y: auto;
+  word-wrap: break-word;
+  background-color: #fff;
+}
+
+
+body.dark-mode .report-search-results {
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #444;
+}
+
+body.dark-mode .report-search-result-item {
+  background-color: #444;
+  color: #fff;
+}
+
+body.dark-mode .report-search-result-item:hover {
+  background-color: #555;
+}
+
+body.dark-mode .report-description {
+  color: #ddd;
+  background-color: #222;
 }
