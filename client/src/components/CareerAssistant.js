@@ -283,300 +283,306 @@ const fetchReports = async (query) => {
 
   return (
     <div className="career-assistant-container">
-    {/* Left Side: Personalization Inputs */}
-    <div className="input-section">
+      {/* Right Side: AI Chat Window */}
+      <div className="output-section">
+        <h3>Career Assistant's Response</h3>
+        <div className="chat-window">
+          {responses.map((response, index) => (
+            <div key={index}>
+              <div>
+                <strong>Q:</strong> {response.question}
+              </div>
+              <div dangerouslySetInnerHTML={{ __html: formatResponse(response.answer) }} />
+              {/* Copy Button */}
+              <button onClick={() => copyToClipboard(response.answer)}>Copy Response</button>
+            </div>
+          ))}
+        </div>
+  
+        {/* Page Overview and Directions Tile */}
+        <div className="header-tile">
+          <h4>Welcome to Career Assistant</h4>
+        </div>
+  
+        <div className="overview-tile">
+  <p className="highlight">
+    Use this tool to get personalized career insights and business analysis based on your questions and preferences, while drawing on data and reporting from The World Bank. 
+    Here’s how to get started:
+  </p>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Use the prompt section to input your career and business analysis questions.
+  </div>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Choose the scope, sentiment tone, level of detail, industry focuses, and more to inform the response.
+  </div>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> To query against data from The World Bank, use the Topic, Region, and Report sections.
+  </div>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Ask about your favorite companies and select a company from the database to target analyses.
+  </div>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Use the Specific Topics section to add any additional focus areas for Career Assistant to consider.
+  </div>
+  <div className="custom-list-item">
+    <span className="icon">➤</span> Click "Ask Career Assistant" to see your results above.
+  </div>
+  <p className="highlight italic-text">
+    Remember, Career Assistant knows your favorite companies. When asked general career questions, it will use those favorite companies to establish your career preferences.
+  </p>
+  <p className="highlight italic-text">
+    It can also provide strategic analyses across this set of companies, evaluate relative investment opportunities, recommend portfolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
+  </p>
+  <p className="highlight italic-text">
+    Adjust the level of detail and preferred format to directly impact the organization and depth of analyses provided. 
+  </p>
+  <p className="highlight italic-text">
+    Career Assistant will include news report links for favorite companies and report links from The World Bank Data Catalog when available. Please specifically request these resources in your prompt to ensure that they are included.
+  </p>
+</div>
+      </div>
+      
+      {/* Left Side: Personalization Inputs */}
+      <div className="input-section">
         <h3>Personalize Your Business Analysis</h3>
-
+  
         {/* Question Prompt Input */}
         <div>
-            <label htmlFor="prompt">Prompt:</label>
-            <textarea
-                id="prompt"
-                value={inputs.prompt}
-                onChange={(e) => setInputs({ ...inputs, prompt: e.target.value })}
-                rows="4"
-                placeholder="Enter your question here"
-            />
+          <label htmlFor="prompt">Prompt:</label>
+          <textarea
+            id="prompt"
+            value={inputs.prompt}
+            onChange={(e) => setInputs({ ...inputs, prompt: e.target.value })}
+            rows="4"
+            placeholder="Enter your question here"
+          />
         </div>
-
+  
         {/* Scope of Analysis (Checkboxes) */}
         <div className="prompt-criteria">
-            <label>Scope of Analysis</label>
-            <div>
-                {['Market Trends', 'Company-Specific Risks', 'Growth Opportunities', 'Competitor Comparison', 'Innovation & R&D'].map((option) => (
-                    <label key={option}>
-                        <input
-                            type="checkbox"
-                            value={option}
-                            checked={inputs.scope_of_analysis.includes(option)}
-                            onChange={(e) => handleInputChange(e, 'scope_of_analysis')}
-                        />
-                        {option}
-                    </label>
-                ))}
-            </div>
+          <label>Scope of Analysis</label>
+          <div>
+            {['Market Trends', 'Company-Specific Risks', 'Growth Opportunities', 'Competitor Comparison', 'Innovation & R&D'].map((option) => (
+              <label key={option}>
+                <input
+                  type="checkbox"
+                  value={option}
+                  checked={inputs.scope_of_analysis.includes(option)}
+                  onChange={(e) => handleInputChange(e, 'scope_of_analysis')}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
         </div>
-
+  
         {/* Sentiment Tone (Dropdown) */}
         <div className="prompt-criteria">
-            <label>Sentiment Tone</label>
-            <select
-                value={inputs.sentiment_tone}
-                onChange={(e) => handleInputChange(e, 'sentiment_tone')}
-            >
-                {['Neutral', 'Optimistic', 'Critical', 'Balanced'].map((option) => (
-                    <option key={option} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
+          <label>Sentiment Tone</label>
+          <select
+            value={inputs.sentiment_tone}
+            onChange={(e) => handleInputChange(e, 'sentiment_tone')}
+          >
+            {['Neutral', 'Optimistic', 'Critical', 'Balanced'].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </div>
-
+  
         {/* Level of Detail (Dropdown) */}
         <div className="prompt-criteria">
-            <label>Level of Detail</label>
-            <select
-                value={inputs.level_of_detail}
-                onChange={(e) => handleInputChange(e, 'level_of_detail')}
-            >
-                {['Brief (2-3 bullet points)', 'Moderate (Short paragraph)', 'Comprehensive (Detailed analysis)'].map((option) => (
-                    <option key={option} value={option}>
-                        {option}
-                    </option>
-                ))}
-            </select>
+          <label>Level of Detail</label>
+          <select
+            value={inputs.level_of_detail}
+            onChange={(e) => handleInputChange(e, 'level_of_detail')}
+          >
+            {['Brief (2-3 bullet points)', 'Moderate (Short paragraph)', 'Comprehensive (Detailed analysis)'].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </div>
-
+  
         {/* Preferred News Sources */}
         <div className="prompt-criteria">
-            <label>Preferred News Sources</label>
-            <div>
-                {['Reuters', 'Bloomberg', 'The Verge', 'TechCrunch', 'Local News Sources'].map((option) => (
-                    <label key={option}>
-                        <input
-                            type="checkbox"
-                            value={option}
-                            checked={inputs.preferred_sources.includes(option)}
-                            onChange={(e) => handleInputChange(e, 'preferred_sources')}
-                        />
-                        {option}
-                    </label>
-                ))}
-            </div>
+          <label>Preferred News Sources</label>
+          <div>
+            {['Reuters', 'Bloomberg', 'The Verge', 'TechCrunch', 'Local News Sources'].map((option) => (
+              <label key={option}>
+                <input
+                  type="checkbox"
+                  value={option}
+                  checked={inputs.preferred_sources.includes(option)}
+                  onChange={(e) => handleInputChange(e, 'preferred_sources')}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
         </div>
-
+  
         {/* Time Frame */}
         <div className="prompt-criteria">
-            <label>Time Frame</label>
-            <div>
-                {['Last 7 days', 'Last 30 days', 'Last 6 months'].map((option) => (
-                    <label key={option}>
-                        <input
-                            type="radio"
-                            value={option}
-                            checked={inputs.time_frame === option}
-                            onChange={(e) => handleInputChange(e, 'time_frame')}
-                        />
-                        {option}
-                    </label>
-                ))}
-            </div>
+          <label>Time Frame</label>
+          <div>
+            {['Last 7 days', 'Last 30 days', 'Last 6 months'].map((option) => (
+              <label key={option}>
+                <input
+                  type="radio"
+                  value={option}
+                  checked={inputs.time_frame === option}
+                  onChange={(e) => handleInputChange(e, 'time_frame')}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
         </div>
-
+  
         {/* Industry Focus */}
         <div className="prompt-criteria">
-            <label>Industry Focus</label>
-            <div>
-                {['Technology', 'Finance', 'Healthcare', 'Retail'].map((option) => (
-                    <label key={option}>
-                        <input
-                            type="checkbox"
-                            value={option}
-                            checked={inputs.industry_focus.includes(option)}
-                            onChange={(e) => handleInputChange(e, 'industry_focus')}
-                        />
-                        {option}
-                    </label>
-                ))}
-            </div>
+          <label>Industry Focus</label>
+          <div>
+            {['Technology', 'Finance', 'Healthcare', 'Retail'].map((option) => (
+              <label key={option}>
+                <input
+                  type="checkbox"
+                  value={option}
+                  checked={inputs.industry_focus.includes(option)}
+                  onChange={(e) => handleInputChange(e, 'industry_focus')}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
         </div>
-                {/* Topic Dropdown */}
-                <div className="search-field">
-            <label>Choose a Topic</label>
-            <select onChange={(e) => setInputs({ ...inputs, selectedTopic: e.target.value })} value={inputs.selectedTopic}>
-                <option value="">Select Topic</option>
-                {topics.map((topic, index) => (
-                    <option key={index} value={topic}>{topic}</option>
-                ))}
-            </select>
+  
+        {/* Topic Dropdown */}
+        <div className="search-field">
+          <label>Choose a Topic</label>
+          <select onChange={(e) => setInputs({ ...inputs, selectedTopic: e.target.value })} value={inputs.selectedTopic}>
+            <option value="">Select Topic</option>
+            {topics.map((topic, index) => (
+              <option key={index} value={topic}>{topic}</option>
+            ))}
+          </select>
         </div>
-
+  
         {/* Company Dropdown */}
         <div className="search-field">
-            <label>Choose a Company</label>
-            <select onChange={(e) => setInputs({ ...inputs, selectedCompany: e.target.value })} value={inputs.selectedCompany}>
-                <option value="">Select Company</option>
-                {companies.map((company, index) => (
-                    <option key={index} value={company.name}>{company.name}</option>
-                ))}
-            </select>
+          <label>Choose a Company</label>
+          <select onChange={(e) => setInputs({ ...inputs, selectedCompany: e.target.value })} value={inputs.selectedCompany}>
+            <option value="">Select Company</option>
+            {companies.map((company, index) => (
+              <option key={index} value={company.name}>{company.name}</option>
+            ))}
+          </select>
         </div>
-
+  
         {/* Region Dropdown */}
         <div className="search-field">
-            <label>Choose a Region</label>
-            <select onChange={(e) => setInputs({ ...inputs, selectedRegion: e.target.value })} value={inputs.selectedRegion}>
-                <option value="">Select Region</option>
-                {regions.map((region, index) => (
-                    <option key={index} value={region}>{region}</option>
-                ))}
-            </select>
+          <label>Choose a Region</label>
+          <select onChange={(e) => setInputs({ ...inputs, selectedRegion: e.target.value })} value={inputs.selectedRegion}>
+            <option value="">Select Region</option>
+            {regions.map((region, index) => (
+              <option key={index} value={region}>{region}</option>
+            ))}
+          </select>
         </div>
-
-{/* Report Search Field */}
-<div className="search-field">
-    <label>Choose a Report</label>
-    <input 
-        type="text" 
-        placeholder="Search reports..." 
-        value={inputs.selectedReport} 
-        onChange={(e) => {
-            setInputs({ ...inputs, selectedReport: e.target.value });
-        }} 
-    />
-{/* Display filtered reports based on search */}
-{inputs.selectedReport && (
-    <div className="report-search-results">
-        {reports.filter(report => {
-            
-            const normalizedTitle = report.title.toLowerCase().replace(/[^a-z0-9]/g, '');
-            const normalizedSearch = inputs.selectedReport.toLowerCase().replace(/[^a-z0-9]/g, '');
-            
-            return normalizedTitle.includes(normalizedSearch);
-        }).length > 0 ? (
-            reports.filter(report => {
+  
+        {/* Report Search Field */}
+        <div className="search-field">
+          <label>Choose a Report</label>
+          <input 
+            type="text" 
+            placeholder="Search reports..." 
+            value={inputs.selectedReport} 
+            onChange={(e) => {
+              setInputs({ ...inputs, selectedReport: e.target.value });
+            }} 
+          />
+          {/* Display filtered reports based on search */}
+          {inputs.selectedReport && (
+            <div className="report-search-results">
+              {inputs.selectedReport && reports.filter(report => {
                 const normalizedTitle = report.title.toLowerCase().replace(/[^a-z0-9]/g, '');
                 const normalizedSearch = inputs.selectedReport.toLowerCase().replace(/[^a-z0-9]/g, '');
-                
                 return normalizedTitle.includes(normalizedSearch);
-            }).map((filteredReport, index) => (
-                <div 
+              }).length > 0 ? (
+                reports.filter(report => {
+                  const normalizedTitle = report.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                  const normalizedSearch = inputs.selectedReport.toLowerCase().replace(/[^a-z0-9]/g, '');
+                  return normalizedTitle.includes(normalizedSearch);
+                }).map((filteredReport, index) => (
+                  <div 
                     key={index} 
                     className="report-search-result-item"
                     onClick={() => setInputs({ ...inputs, selectedReport: filteredReport.title })}
-                >
+                  >
                     <div>{filteredReport.title}</div>
                     {/* Initially Hide Description and Display After Selecting */}
                     {inputs.selectedReport === filteredReport.title && (
-                        <div>
-                            <div 
-                                className="report-description" 
-                                dangerouslySetInnerHTML={{ __html: filteredReport.description }}
-                            ></div>
-                            {/* Display Link if Available */}
-                            {filteredReport.link && (
-                                <div className="report-link">
-                                    <a href={filteredReport.link} target="_blank" rel="noopener noreferrer">
-                                        Read full report
-                                    </a>
-                                </div>
-                            )}
-                        </div>
+                      <div>
+                        <div 
+                          className="report-description" 
+                          dangerouslySetInnerHTML={{ __html: filteredReport.description }}
+                        ></div>
+                        {/* Display Link if Available */}
+                        {filteredReport.link && (
+                          <div className="report-link">
+                            <a href={filteredReport.link} target="_blank" rel="noopener noreferrer">
+                              Read full report
+                            </a>
+                          </div>
+                        )}
+                      </div>
                     )}
-                </div>
-            ))
-        ) : (
-            <div>No results found for "{inputs.selectedReport}".</div>
-        )}
-    </div>
-)}
-
-
-
-</div>
-
-
+                  </div>
+                ))
+              ) : (
+                <div>No results found for "{inputs.selectedReport}".</div>
+              )}
+            </div>
+          )}
+        </div>
+  
         {/* Specific Topics */}
         <div className="prompt-criteria">
-            <label>Specific Topics</label>
-            <input
-                type="text"
-                value={inputs.specific_topics}
-                onChange={(e) => handleInputChange(e, 'specific_topics')}
-            />
+          <label>Specific Topics</label>
+          <input
+            type="text"
+            value={inputs.specific_topics}
+            onChange={(e) => handleInputChange(e, 'specific_topics')}
+          />
         </div>
-
+  
         {/* Preferred Format */}
         <div className="prompt-criteria">
-            <label>Preferred Format</label>
-            <div>
-                {['Bullet Points', 'Short Summary', 'Detailed Report'].map((option) => (
-                    <label key={option}>
-                        <input
-                            type="radio"
-                            value={option}
-                            checked={inputs.preferred_format === option}
-                            onChange={(e) => handleInputChange(e, 'preferred_format')}
-                        />
-                        {option}
-                    </label>
-                ))}
-            </div>
+          <label>Preferred Format</label>
+          <div>
+            {['Bullet Points', 'Short Summary', 'Detailed Report'].map((option) => (
+              <label key={option}>
+                <input
+                  type="radio"
+                  value={option}
+                  checked={inputs.preferred_format === option}
+                  onChange={(e) => handleInputChange(e, 'preferred_format')}
+                />
+                {option}
+              </label>
+            ))}
+          </div>
         </div>
-
+  
         {/* Submit Button */}
         <button className="submit-button" onClick={handleSubmit}>Ask Career Assistant</button>
-    </div>
-
-    {/* Right Side: AI Chat Window */}
-
-<div className="output-section">
-      {/* Page Overview and Directions Tile */}
-      <div className="header-tile">
-  <h4>Welcome to Career Assistant</h4>
-</div>
-
-  <div className="overview-tile">
-    <p className="highlight">
-      Use this tool to get personalized career insights and business analysis based on your questions and preferences. 
-      Here’s how to get started:
-    </p>
-    <div className="custom-list-item">
-      <span className="icon">➤</span> Use the left panel to input your career and business analysis questions.
-    </div>
-    <div className="custom-list-item">
-      <span className="icon">➤</span> Choose the scope, sentiment tone, level of detail, response format, and more to inform the response.
-    </div>
-    <div className="custom-list-item">
-      <span className="icon">➤</span> Click "Ask Career Assistant" to see your results below.
-    </div>
-    <p className="highlight italic-text">
-      Remember, Career Assistant knows your favorite companies. When asked general career questions, it will use those favorite companies to establish your career preferences.
-    </p>
-    <p className="highlight italic-text">
-    It can also provide strategic analyses across this set of companies, evaluate relative investment opporunities, recommend portolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
-    </p>
-  </div>
-
-
-
-      <h3>Career Assistant's Response</h3>
-      <div className="chat-window">
-        {responses.map((response, index) => (
-          <div key={index}>
-            <div>
-              <strong>Q:</strong> {response.question}
-            </div>
-            <div dangerouslySetInnerHTML={{ __html: formatResponse(response.answer) }} />
-            {/* Copy Button */}
-            <button onClick={() => copyToClipboard(response.answer)}>Copy Response</button>
-          </div>
-        ))}
       </div>
     </div>
-  </div>
+  );
   
-);
 
 };
 
