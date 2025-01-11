@@ -145,7 +145,6 @@ def career_assistant():
     prompt += f"Recent company news articles: Include clickable links to the latest news articles **only** for the companies mentioned in the user's career inquiry. If the company is part of the user's favorites but is not mentioned in the inquiry, exclude it from the news section.\n"
     prompt += favorites_prompt
     
-    logging.debug(f"Final AI prompt: {prompt}")
 
     if selected_topic:
         prompt += f"Focus on the topic: {selected_topic}. "
@@ -153,9 +152,33 @@ def career_assistant():
         prompt += f"Consider the company: {selected_company}. "
     if selected_region:
         prompt += f"Focus on the region: {selected_region}. "
-    if selected_report:
-        prompt += f"Search for related reports titled: {selected_report}. "
+    if selected_report:        
+        response = requests.get(f"http://localhost:5555/api/search?q={selected_report}")
+        if response.status_code == 200:
+            data = response.json()
+            reports = data.get('data', [])
+            
+            selected_report_normalized = selected_report.strip().lower()
+            
+            matching_report = next(
+                (report for report in reports if report['title'].strip().lower() == selected_report_normalized),
+                None
+            )
+            
+            if matching_report:
+                prompt += f"Search for related reports titled: {matching_report['title']}.\n"
+                prompt += f"Description: {matching_report['description']}\n"
+                
+                if matching_report['link']:
+                    prompt += f"Full Report Link: {matching_report['link']}\n"
+                else:
+                    prompt += "No link available for this report.\n"
+            else:
+                prompt += "No related report found.\n"
+        else:
+            prompt += "Failed to retrieve report data.\n"
     
+    logging.debug(f"Final AI prompt: {prompt}")
 
     api_data = {
         "model": "gpt-4o-mini",
