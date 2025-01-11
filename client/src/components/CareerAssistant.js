@@ -328,7 +328,7 @@ const fetchReports = async (query) => {
     <span className="icon">➤</span> Click "Ask Career Assistant" to see your results above.
   </div>
   <p className="highlight italic-text">
-    Remember, Career Assistant knows your favorite companies. When asked general career questions, it will use those favorite companies to establish your career preferences.
+    Remember, Career Assistant knows your favorite companies. It will use those favorite companies to establish your career preferences.
   </p>
   <p className="highlight italic-text">
     Across this set of favorite companies, it can also evaluate relative investment opportunities, recommend portfolio allocations, and conduct in-depth strategic analyses informed by your other personalization inputs.
