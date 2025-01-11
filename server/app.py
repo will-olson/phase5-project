@@ -130,6 +130,7 @@ def career_assistant():
     selected_region = data.get('selectedRegion', '')
     selected_report = data.get('selectedReport', '')
     
+    
     prompt += f"Scope of Analysis: {', '.join(scope_of_analysis)}\n"
     prompt += f"Sentiment Tone: {sentiment_tone}\n"
     prompt += f"Level of Detail: {level_of_detail}\n"
@@ -154,6 +155,7 @@ def career_assistant():
         prompt += f"Focus on the region: {selected_region}. "
     if selected_report:
         prompt += f"Search for related reports titled: {selected_report}. "
+    
 
     api_data = {
         "model": "gpt-4o-mini",

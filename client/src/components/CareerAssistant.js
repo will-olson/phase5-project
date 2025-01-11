@@ -468,7 +468,20 @@ const fetchReports = async (query) => {
                     <div>{filteredReport.title}</div>
                     {/* Initially Hide Description and Display After Selecting */}
                     {inputs.selectedReport === filteredReport.title && (
-                        <div className="report-description" dangerouslySetInnerHTML={{ __html: filteredReport.description }}></div>
+                        <div>
+                            <div 
+                                className="report-description" 
+                                dangerouslySetInnerHTML={{ __html: filteredReport.description }}
+                            ></div>
+                            {/* Display Link if Available */}
+                            {filteredReport.link && (
+                                <div className="report-link">
+                                    <a href={filteredReport.link} target="_blank" rel="noopener noreferrer">
+                                        Read full report
+                                    </a>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             ))
@@ -477,6 +490,7 @@ const fetchReports = async (query) => {
         )}
     </div>
 )}
+
 
 
 </div>
