@@ -331,10 +331,10 @@ const fetchReports = async (query) => {
     Remember, Career Assistant knows your favorite companies. When asked general career questions, it will use those favorite companies to establish your career preferences.
   </p>
   <p className="highlight italic-text">
-    It can also provide strategic analyses across this set of companies, evaluate relative investment opportunities, recommend portfolio allocations, and include recent news articles to further contextualize its commentary and recommendations.
+    Across this set of favorite companies, it can also evaluate relative investment opportunities, recommend portfolio allocations, and conduct in-depth strategic analyses informed by your other personalization inputs.
   </p>
   <p className="highlight italic-text">
-    Adjust the level of detail and preferred format to directly impact the organization and depth of analyses provided. 
+    Adjust Sentiment Tone, Level of Detail, and Preferred Format to impact the content and structure of responses. 
   </p>
   <p className="highlight italic-text">
     Career Assistant will include news report links for favorite companies and report links from The World Bank Data Catalog when available. Please specifically request these resources in your prompt to ensure that they are included.
