@@ -90,7 +90,7 @@ function App() {
                     setUsers([...users, data]);
                     alert('User added successfully!');
                 } else {
-                    alert('Error adding user');
+                    alert('Unable to add user. Try a different name.');
                 }
                 setNewUserName('');
                 setNewUserPassword('');

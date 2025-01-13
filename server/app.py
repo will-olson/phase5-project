@@ -576,5 +576,31 @@ def delete_user(user_id):
         return jsonify({"message": "User deleted successfully."}), 200
     return jsonify({"message": "User not found."}), 404
 
+@app.route('/validate-username', methods=['GET'])
+def validate_username():
+    username = request.args.get('username')
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
+
+    existing_user = User.query.filter_by(name=username).first()
+    if existing_user:
+        return jsonify({"available": False, "message": "Username is already taken"}), 200
+
+    return jsonify({"available": True, "message": "Username is available"}), 200
+
+@app.route('/validate-company-url', methods=['POST'])
+def validate_company_url():
+    data = request.get_json()
+    url = data.get('url')
+
+    if not url:
+        return jsonify({"error": "URL is required"}), 400
+
+    url_regex = r'^(https?://)?(www\.)?([a-zA-Z0-9.-]+)\.([a-zA-Z]{2,})(/[a-zA-Z0-9._%+-]*)*$'
+    if re.match(url_regex, url):
+        return jsonify({"valid": True, "message": "Valid URL format"}), 200
+    else:
+        return jsonify({"valid": False, "message": "Invalid URL format"}), 200
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)

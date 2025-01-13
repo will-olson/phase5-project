@@ -1113,3 +1113,34 @@ body.dark-mode .report-description {
   color: #ddd;
   background-color: #222;
 }
+
+.form-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.input-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.input {
+  width: 95%;
+  padding: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+body.dark-mode .input {
+  border: 1px solid var(--border-color-dark);
+  background-color: #2e2e3a;
+  color: var(--text-color-dark);
+}
+
+.error-message {
+  font-size: 0.8rem;
+  color: red;
+  margin-top: 0.4rem;
+}
