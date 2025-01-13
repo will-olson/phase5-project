@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import '../index.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Formik, Field, Form, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import Navbar from './NavBar';
 import ProfilePage from './ProfilePage';
 import IndustryNews from './IndustryNews';
@@ -14,8 +16,6 @@ const API_BASE_URL = 'http://127.0.0.1:5555';
 function App() {
     const [users, setUsers] = useState([]);
     const [companies, setCompanies] = useState([]);
-    const [newUserName, setNewUserName] = useState('');
-    const [newUserPassword, setNewUserPassword] = useState('');
     const [loggedInUser, setLoggedInUser] = useState(null);
     const [loginData, setLoginData] = useState({ name: '', password: '' });
     const [favorites, setFavorites] = useState([]);
@@ -78,11 +78,11 @@ function App() {
             .catch((error) => console.log(error));
     };
 
-    const handleAddUser = () => {
+    const handleAddUser = (values) => {
         fetch(`${API_BASE_URL}/users`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: newUserName, password: newUserPassword }),
+            body: JSON.stringify(values),
         })
             .then((response) => response.json())
             .then((data) => {
@@ -92,16 +92,26 @@ function App() {
                 } else {
                     alert('Unable to add user. Try a different name.');
                 }
-                setNewUserName('');
-                setNewUserPassword('');
             })
             .catch((error) => console.log(error));
     };
 
-    const handleCompanyAdd = (company) => {
-        setCompanies((prevCompanies) => [...prevCompanies, company]);
-        alert(`Company ${company.name} added successfully!`);
-    };
+    const validationSchema = Yup.object({
+        name: Yup.string()
+            .min(3, 'Username must be at least 3 characters')
+            .max(15, 'Username must not exceed 15 characters')
+            .required('Username is required')
+            .test('username-unique', 'Username is already taken', async (value) => {
+                const usernameExists = users.some((user) => user.name === value);
+                if (usernameExists) {
+                    return false;
+                }
+                return true;
+            }),
+        password: Yup.string()
+            .min(6, 'Password must be at least 6 characters')
+            .required('Password is required'),
+    });
 
     return (
         <Router>
@@ -113,38 +123,65 @@ function App() {
                     <Route path="/industry-news" element={<IndustryNews />} />
                     <Route path="/companies" element={<CompaniesPage />} />
                     <Route path="/data" element={<DataPage />} />
-                    <Route path="/career-assistant" element={<CareerAssistant />} /> {/* New route for Career Assistant */}
-                    <Route path="/" element={
-                        loggedInUser ? (
-                            <div>
-                                <h2>Welcome, {loggedInUser.name}!</h2>
-                                <h3>Add New Company</h3>
-                                <CompanyForm onCompanyAdd={handleCompanyAdd} />
-                                <ProfilePage loggedInUser={loggedInUser} favorites={favorites} fetchFavorites={() => fetchFavorites(loggedInUser?.id)} />
-                                <button onClick={handleLogout}>Logout</button>
-                            </div>
-                        ) : (
-                            <div>
-                                <h2>Users</h2>
-                                <div className="users-container">
-                                    {users.map((user) => (
-                                        <div key={user.id} className="user-container">
-                                            <div className="user-info">
-                                                <h4>{user.name}</h4>
-                                            </div>
-                                        </div>
-                                    ))}
+                    <Route path="/career-assistant" element={<CareerAssistant />} />
+                    <Route
+                        path="/"
+                        element={
+                            loggedInUser ? (
+                                <div>
+                                    <h2>Welcome, {loggedInUser.name}!</h2>
+                                    <h3>Add New Company</h3>
+                                    <CompanyForm />
+                                    <ProfilePage loggedInUser={loggedInUser} favorites={favorites} fetchFavorites={() => fetchFavorites(loggedInUser?.id)} />
+                                    <button onClick={handleLogout}>Logout</button>
                                 </div>
-                                <input type="text" placeholder="Add New User" value={newUserName} onChange={(e) => setNewUserName(e.target.value)} />
-                                <input type="password" placeholder="Password" value={newUserPassword} onChange={(e) => setNewUserPassword(e.target.value)} />
-                                <button onClick={handleAddUser}>Add User</button>
-                                <h3>Login</h3>
-                                <input type="text" placeholder="Username" value={loginData.name} onChange={(e) => setLoginData({ ...loginData, name: e.target.value })} />
-                                <input type="password" placeholder="Password" value={loginData.password} onChange={(e) => setLoginData({ ...loginData, password: e.target.value })} />
-                                <button onClick={handleLogin}>Login</button>
-                            </div>
-                        )
-                    } />
+                            ) : (
+                                <div>
+                                    <h2>Users</h2>
+                                    <div className="users-container">
+                                        {users.map((user) => (
+                                            <div key={user.id} className="user-container">
+                                                <div className="user-info">
+                                                    <h4>{user.name}</h4>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <Formik
+                                        initialValues={{ name: '', password: '' }}
+                                        validationSchema={validationSchema}
+                                        onSubmit={(values) => handleAddUser(values)}
+                                    >
+                                        <Form>
+                                            <div>
+                                                <Field type="text" name="name" placeholder="Username" />
+                                                <ErrorMessage name="name" component="div" className="error" />
+                                            </div>
+                                            <div>
+                                                <Field type="password" name="password" placeholder="Password" />
+                                                <ErrorMessage name="password" component="div" className="error" />
+                                            </div>
+                                            <button type="submit">Add User</button>
+                                        </Form>
+                                    </Formik>
+                                    <h3>Login</h3>
+                                    <input
+                                        type="text"
+                                        placeholder="Username"
+                                        value={loginData.name}
+                                        onChange={(e) => setLoginData({ ...loginData, name: e.target.value })}
+                                    />
+                                    <input
+                                        type="password"
+                                        placeholder="Password"
+                                        value={loginData.password}
+                                        onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                                    />
+                                    <button onClick={handleLogin}>Login</button>
+                                </div>
+                            )
+                        }
+                    />
                 </Routes>
             </div>
         </Router>
