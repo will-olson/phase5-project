@@ -298,14 +298,22 @@ function DataPage() {
                     <div className="data-catalog-results">
                         {catalogResults.length > 0 && (
                             catalogResults.map((item, index) => (
-                                <div key={index} className="data-catalog-item">
-                                    <h4>{item.title}</h4>
-                                    <p>{item.description}</p>
-                                    <a href={item.link} target="_blank" rel="noopener noreferrer">View Report</a>
-                                </div>
+                            <div key={index} className="data-catalog-item">
+                                <h4>{item.title}</h4>
+                                <p 
+                                className="catalog-description" 
+                                dangerouslySetInnerHTML={{ __html: item.description }}
+                                ></p>
+                                {item.link && (
+                                <a href={item.link} target="_blank" rel="noopener noreferrer">
+                                    View Report
+                                </a>
+                                )}
+                            </div>
                             ))
                         )}
-                    </div>
+                        </div>
+
 
                     <div className="top-countries">
                         {topCountries.map((country, index) => (
