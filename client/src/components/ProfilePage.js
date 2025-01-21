@@ -95,6 +95,23 @@ const ProfilePage = ({ loggedInUser }) => {
     return <div>Please log in to view your profile.</div>;
   }
 
+  const handleFavoriteToggle = (companyId, newFavoriteStatus) => {
+    setFavorites(prevFavorites => {
+        if (newFavoriteStatus) {
+            return [...prevFavorites, companyId];
+        } else {
+            return prevFavorites.filter(favorite => favorite.id !== companyId);
+        }
+    });
+};
+
+const handleCompanyDelete = (companyId) => {
+    setFavorites(prevFavorites => 
+      prevFavorites.filter(favorite => favorite.id !== companyId)
+    );
+};
+
+
   return (
     <div className="container">
       <div className="header">
@@ -115,6 +132,8 @@ const ProfilePage = ({ loggedInUser }) => {
                     indeed: favorite.indeed
                   }}
                   isFavorite={true}
+                  onFavoriteToggle={handleFavoriteToggle}
+                  onDelete={handleCompanyDelete}
                 />
               </div>
             ))

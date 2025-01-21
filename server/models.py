@@ -23,12 +23,14 @@ class Company(db.Model):
     indeed = db.Column(db.String)
     
     category_id = db.Column(db.Integer, ForeignKey('categories.id'))
-    category = relationship('Category', back_populates='companies')
+    user_id = db.Column(db.Integer, ForeignKey('users.id'), nullable=False)
     
+    category = relationship('Category', back_populates='companies')
+    user = relationship('User', back_populates='companies')
     favorites = relationship('Favorites', back_populates='company')
 
     def __repr__(self):
-        return f"<Company(id={self.id}, name={self.name}, link={self.link})>"
+        return f"<Company(id={self.id}, name={self.name}, link={self.link}, user_id={self.user_id})>"
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -38,6 +40,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(200), nullable=False)
 
     favorites = relationship('Favorites', back_populates='user', cascade="all, delete-orphan")
+    companies = relationship('Company', back_populates='user', cascade="all, delete-orphan")
 
     def __init__(self, name, password):
         self.name = name

@@ -1,21 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
-function CompanyCard({ company, isFavorite = false, onFavoriteToggle }) {
-    const [favorite, setFavorite] = useState(isFavorite);
+function CompanyCard({ company, isFavorite = false, onFavoriteToggle, onDelete }) {
     const [userId, setUserId] = useState(localStorage.getItem('user_id'));
     const [isEditing, setIsEditing] = useState(false);
     const [newLink, setNewLink] = useState(company.link);
     const [newIndeed, setNewIndeed] = useState(company.indeed);
-
-    useEffect(() => {
-        const handleStorageChange = () => {
-            setUserId(localStorage.getItem('user_id'));
-        };
-        window.addEventListener('storage', handleStorageChange);
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
 
     const checkLoginStatus = () => {
         if (!userId) {
@@ -47,8 +36,8 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle }) {
                 throw new Error(errorData.message || 'Failed to update favorite status');
             }
 
-            setFavorite(newFavoriteStatus);
-            onFavoriteToggle && onFavoriteToggle(company.id, newFavoriteStatus);
+            if (onFavoriteToggle) onFavoriteToggle(company.id, newFavoriteStatus);
+            alert('Company favorites updated successfully');
         } catch (error) {
             console.error('Failed to update favorite status:', error);
         }
@@ -80,7 +69,6 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle }) {
         }
     };
 
-
     const handleDelete = async () => {
         if (!company.id) return;
 
@@ -94,14 +82,12 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle }) {
                 throw new Error(errorData.message || 'Failed to delete company');
             }
 
+            if (onDelete) onDelete(company.id);
             alert('Company deleted successfully');
-            
         } catch (error) {
             console.error('Error deleting company:', error);
         }
     };
-
-    useEffect(() => setFavorite(isFavorite), [isFavorite]);
 
     return (
         <div className="company-card">
@@ -142,11 +128,11 @@ function CompanyCard({ company, isFavorite = false, onFavoriteToggle }) {
 
             <div className="button-group">
                 <button
-                    className={`favorite-button ${favorite ? 'favorited' : ''}`}
-                    onClick={() => handleFavoriteClick(!favorite)}
-                    aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+                    className={`favorite-button ${isFavorite ? 'favorited' : ''}`}
+                    onClick={() => handleFavoriteClick(!isFavorite)}
+                    aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                 >
-                    {favorite ? '★' : '☆'}
+                    {isFavorite ? '★' : '☆'}
                 </button>
                 {isEditing ? (
                     <button onClick={handleLinkUpdate}>Save Links</button>

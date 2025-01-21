@@ -43,6 +43,12 @@ function CompaniesPage() {
         company.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const handleCompanyDelete = (companyId) => {
+        setCompanies(prevCompanies =>
+            prevCompanies.filter(company => company.id !== companyId)
+        );
+    };
+
     return (
         
         <div className="container">
@@ -76,6 +82,7 @@ function CompaniesPage() {
                                     key={company.id}
                                     company={company}
                                     userId={userId}
+                                    onDelete={handleCompanyDelete}
                                 />
                             ))
                         ) : (
