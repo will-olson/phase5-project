@@ -6,11 +6,11 @@ The Career Assistant Application is a web-based tool designed to help users expl
 
 ## Key Features
 
-- **User Authentication**: Users can create an account, log in, and log out securely.
-- **Favorites Management**: Users can add companies to their favorites. Favorites and recent related news links will shower on user profiles. 
+- **User Authentication**: Users can create an account, log in, and log out securely. 
 - **Career Assistant**: Users can interact with an AI-powered assistant to receive personalized career insights and analysis.
 - **Industry News**: Browse the latest industry news by sector. 
 - **Company Management**: Users can edit and delete existing companies and add new companies to the database. 
+- **Favorites Management**: Users can add companies to their favorites. Favorites and recent related news links will show on user profiles.
 - **Data**: Users can access recent financial metrics from Alpha Vantage as well as data from The World Bank. 
 
 ## Technologies Used
@@ -85,27 +85,24 @@ npm start
 - Session management is handled through Flask sessions.
 - The login status is reflected in the frontend, with logged-in users seeing a personalized greeting.
 
-#### Favorites System
-- Users can mark companies as favorites and view them on their profile page.
-- Favorite companies are fetched from the backend upon login.
-
 #### Career Assistant
 - The Career Assistant uses the OpenAI API to provide personalized career insights.
 - Users can ask questions regarding specific companies or general career guidance.
 - Users can ask for more detailed analysis applied across their favorite companies.
 - Users can customize their personalization inputs to impact the response tone, level of detail, formatting, and any focus areas.
-- Users can select from companies in the database and topics, regions, and reports from The World Bank to further guide response outputs.
+- Users can select from companies in the database along with topics, regions, and reports from The World Bank to further guide response outputs.
 
 #### Industry News
-- Displays the latest news related to industries and companies.
+- Displays the latest news by industry category for each company in the database.
 
 #### Company Management
-- Users can add new companies to the database, which are then displayed on the company pages.
+- Users can add new companies to the database, which are then displayed on the company page. Users can edit or delete existing companies.
+- Users can also favorite companies so that they are pulled onto their profile page along with any recent related news.
 
 #### Data Page
 The Data page provides users with more data to consider in their career planning and analyses including:
 
-- **Symbol Search**: Users can search for company trading symbols via an Alpha Vantage API. 
+- **Symbol Search**: Future state, users could be able to search company trading symbols and source detailed financial metrics. Validated functionality will require an API upgrade.
 - **Topic Search**: Users can review key global topics from The World Bank.
 - **Region Search**: Users can search among key geographies provided by The World Bank to learn about capital cities and income levels.
 - **Report Search**: Users can query reports from The World Bank's Data Catalog to source more detailed, targeted data.
@@ -129,3 +126,4 @@ The application uses React Router to navigate between pages:
 #### Future Enhancements
 - Upgrade Alpha Vantage API for optimized symbol and overview fetch supported features. Free API key request limit inhibits extensive feature testing. 
 - Pending validation of Alpha Vantage API features using an upraded API key, to integrate financial metrics by company into Career Assistant model to inform more in-depth, data-driven analyses.
+- Consider implementing updates required to enable user-specific company databases so that users can add, delete, and edit companies without impacting the experience for other users. User ID added to company table on the backend as well as new company submissions already.
