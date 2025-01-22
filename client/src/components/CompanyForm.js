@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
-function CompanyForm({ onCompanyAdd }) {
+function CompanyForm() {
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
@@ -38,6 +38,20 @@ function CompanyForm({ onCompanyAdd }) {
             category_name: Yup.string().required('Category is required'),
         }),
         onSubmit: (values, { setSubmitting, setFieldError }) => {
+            const user_id = localStorage.getItem('user_id');
+
+            if (!user_id) {
+                setFieldError('name', 'User ID is not available. Please log in.');
+                setSubmitting(false);
+                return;
+            }
+
+            
+            const payload = {
+                ...values,
+                user_id,
+            };
+
             if (!categories.includes(values.category_name)) {
                 setFieldError('category_name', 'Category does not exist');
                 setSubmitting(false);
@@ -47,19 +61,20 @@ function CompanyForm({ onCompanyAdd }) {
             fetch('http://127.0.0.1:5555/companies', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(values),
+                body: JSON.stringify(payload),
             })
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.message) {
-                        onCompanyAdd(data);
+                        console.log('Company added successfully:', data);
+                        alert('Company added successfully');
                         formik.resetForm();
                     } else {
                         setFieldError('category_name', 'Category must exist');
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
+                    console.error('Error adding company:', error);
                     setFieldError('category_name', 'An error occurred while adding the company');
                 })
                 .finally(() => {

@@ -416,7 +416,8 @@ def companies():
                 "name": company.name,
                 "category": company.category.name if company.category else None,
                 "link": company.link,
-                "indeed": company.indeed
+                "indeed": company.indeed,
+                "user_id": company.user_id
             } for company in companies
         ])
 
@@ -426,12 +427,26 @@ def companies():
         link = data.get('link')
         indeed = data.get('indeed')
         category_name = data.get('category_name')
+        user_id = data.get('user_id')
+
+        if not user_id:
+            return jsonify({"error": "User ID is required."}), 400
+
+        user = User.query.get(user_id)
+        if not user:
+            return jsonify({"error": "Invalid User ID."}), 404
 
         category = Category.query.filter_by(name=category_name).first()
         if not category:
             return jsonify({"error": "Category not found"}), 400
 
-        new_company = Company(name=name, link=link, indeed=indeed, category=category)
+        new_company = Company(
+            name=name,
+            link=link,
+            indeed=indeed,
+            category=category,
+            user_id=user_id
+        )
         db.session.add(new_company)
         db.session.commit()
         return jsonify({"message": f"Company '{name}' added successfully."}), 201
