@@ -26,12 +26,10 @@ with app.app_context():
 
         
     users = [
-        User(name="Fintech", password="password-123"),
-        User(name="Tech", password="password-123"),
-        User(name="AI", password="password-123"),
-        User(name="Media", password="password-123"),
-        User(name="SaaS", password="password-123"),
-        User(name="Mixed", password="password-123")
+        User(name="Ethan", password="password-123$"),
+        User(name="Recruiter", password="password-123$"),
+        User(name="Sara", password="password-123$"),
+        User(name="William", password="password-123$"),
     ]
 
     for user in users:
